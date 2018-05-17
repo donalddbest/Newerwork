@@ -1,0 +1,3 @@
+Normal, 15, 22
+Pastel, 50, 55
+Axanthic, 85, 93
