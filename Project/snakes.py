@@ -28,7 +28,7 @@ class Snake:
 		else:
 			self.sex = 'Female'
 		self.traits = []
-		self.forebears = []
+		self.forebears = [self.name]
 		self.parents = []
 		self.age = 0
 		self.price = 0
@@ -41,9 +41,9 @@ class Snake:
 	def add_trait(self, trait):
 		self.traits.append(trait)
 	
-	def add_parents(self, parent1, parent2):
-		self.parents.append(parent1.name)
-		self.parents.append(parent2.name)
+	# def add_parents(self, parent1, parent2):
+	# 	self.parents.append(parent1.name)
+	# 	self.parents.append(parent2.name)
 	def add_forebears(self, parent1, parent2):
 		if (parent1.forebears):
 			self.forebears.append(parent1.forebears)
@@ -51,7 +51,6 @@ class Snake:
 			self.forebears.append(parent2.forebears)
 		self.forebears.append(parent1.name)
 		self.forebears.append(parent2.name)
-		self.add_parents(parent1, parent2)
 	def add_price(self):
 		self.price = prediction(self.age, self.traits, self.sex, curtime)
 
@@ -70,6 +69,6 @@ for i in range(0,len(data)):
 	data[i][2] = float(data[i][2])
 
 try:
-	print Snake('f',snakes[0],snakes[1]).name
+	print Snake('f',snakes[0],snakes[1]).forebears
 except:
 	pass
