@@ -2,6 +2,7 @@ import csv
 import time
 import numpy as np
 import pandas
+import math
 
 df = pandas.read_csv('babies-first-names-1980-1989.csv')
 names = df.FirstForename
@@ -14,6 +15,7 @@ codom = ['Pastel', 'Fire', 'Banana']
 curtime = time.time() 
 capacity = 3
 snakes = []
+kept = []
 def prediction(age, traits, sex, time):
 	"""Not yet implemented, will take those three/four arguments and return the price of the a snake with the given features."""
 	print 'prediction is working thus far (for what it is worth)'
@@ -46,14 +48,22 @@ class Snake:
 	# 	self.parents.append(parent2.name)
 	def add_forebears(self, parent1, parent2):
 		if (parent1.forebears):
-			self.forebears.append(parent1.forebears)
+			self.forebears= self.forebears + parent1.forebears
 		if (parent2.forebears):
-			self.forebears.append(parent2.forebears)
-		self.forebears.append(parent1.name)
-		self.forebears.append(parent2.name)
+			self.forebears= self.forebears + parent2.forebears
+		# self.forebears.append(parent1.name)
+		# self.forebears.append(parent2.name)
 	def add_price(self):
 		self.price = prediction(self.age, self.traits, self.sex, curtime)
 
+def breed(snake1,snake2):
+	yesno = np.random.binomial(size = 1, n = 1, p = .6)[0]
+	if (yesno == 0):
+		pass
+	else:
+		numbabies = np.floor(np.random.triangular(2,6,13, 1))
+		for i in range(1,numbabies):
+			snakes.append( Snake(names[i], snake1,snake2))
 
 snakes.append(Snake('a'))
 snakes.append(Snake('b'))
@@ -70,5 +80,13 @@ for i in range(0,len(data)):
 
 try:
 	print Snake('f',snakes[0],snakes[1]).forebears
+except:
+	pass
+try:
+	breed(snakes[0],snakes[1])
+except:
+	pass
+try:
+	print(snakes[3].forebears)
 except:
 	pass
