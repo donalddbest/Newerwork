@@ -24,34 +24,64 @@ class Snake:
 	"""This class defines an individual snake and instantiates its genetics"""
 	def __init__(self, name, parent1 = 0, parent2 = 0, traits = 0, sex = 0, age = 0):
 		self.name = name
-		if (not sex):
+		# Randomly assigns Male or Female to a snake
+		if (sex == 0):
 			sexnum = np.random.binomial(size = 1, n = 1, p = .5)[0]
 			if (sexnum == 0):
 				self.sex = 'Male'
 			else:
 				self.sex = 'Female'
+		else:
+			self.sex = sex
 		self.traits = []
 		self.forebears = [self.name]
 		self.parents = []
 		self.age = age
 		self.price = 0
+		traitsfromparent1 = []
+		traitsfromparent2 = []
+		traitlist = []
+		# Checks whether you can breed the parents at all and if not kills the initialization
 		if (parent1 or parent2):
+			# Checks whether you would be inbreeding
 			if (not set(parent1.forebears).isdisjoint(parent2.forebears)):
 				raise ValueError()
+			# Checks whether parents are same sex
 			if (parent1.sex == parent2.sex):
 				raise ValueError()
-		if (traits):
+			else:
+				self.forebears = self.forebears+parent1.forebears+parent2.forebears
+		# Instantiation of morphs
+		if (traits != 0):
 			self.traits = traits
-	# def add_parents(self, parent1, parent2):
-	# 	self.parents.append(parent1.name)
-	# 	self.parents.append(parent2.name)
-	def add_forebears(self, parent1, parent2):
-		if (parent1.forebears):
-			self.forebears= self.forebears + parent1.forebears
-		if (parent2.forebears):
-			self.forebears= self.forebears + parent2.forebears
-		# self.forebears.append(parent1.name)
-		# self.forebears.append(parent2.name)
+		else:
+			for i in range(0,len(parent1.traits)):
+				# Gets morphs from parent1
+				if (len(parent1.traits[i]) == 1):
+					if (np.random.binomial(size = 1, n = 1, p = .5) == 1):
+						traitsfromparent1.append(parent1.traits[i][0])
+					else:
+						pass
+				else:
+					traitsfromparent1.append(parent1.traits[i][0])
+			for i in range(0,len(parent2.traits)):
+				# Gets morphs from parent2
+				if (len(parent2.traits[i]) == 1):
+					if (np.random.binomial(size = 1, n = 1, p = .5) == 1):
+						traitsfromparent2.append(parent2.traits[i][0])
+					else:
+						pass
+				else:
+					traitsfromparent2.append(parent2.traits[i][0])
+			self.traits = traitsfromparent2+traitsfromparent1
+
+	# def add_forebears(self, parent1, parent2):
+	# 	if (parent1.forebears):
+	# 		self.forebears= self.forebears + parent1.forebears
+	# 	if (parent2.forebears):
+	# 		self.forebears= self.forebears + parent2.forebears
+	# 	# self.forebears.append(parent1.name)
+	# 	# self.forebears.append(parent2.name)
 	def add_price(self):
 		self.price = prediction(self.age, self.traits, self.sex, curtime)
 
@@ -64,13 +94,13 @@ def breed(snake1,snake2):
 		for i in range(1,numbabies):
 			snakes.append( Snake(names[i], snake1,snake2))
 
-snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1],codom[1]]]))
-snakes.append(Snake('b', sex = 'Female', age = 1))
+snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
+snakes.append(Snake('b', sex = 'Female', age = 1, traits = [[recessives[0]],[codom[2]]]))
 
-snakes.append(Snake('c'))
-snakes.append(Snake('d'))
-snakes[2].add_forebears(snakes[0],snakes[1])
-snakes[3].add_forebears(snakes[0],snakes[1])
+snakes.append(Snake('c', parent1 = snakes[0], parent2 = snakes[1]))
+# snakes.append(Snake('d'))
+# snakes[2].add_forebears(snakes[0],snakes[1])
+# snakes[3].add_forebears(snakes[0],snakes[1])
 
 data = list(csv.reader(open('prices.txt')))
 for i in range(0,len(data)):
@@ -86,7 +116,7 @@ try:
 except:
 	pass
 try:
-	print(snakes[0].traits)
+	print(snakes[2].traits)
 except:
 	pass
 
