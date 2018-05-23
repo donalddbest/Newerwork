@@ -52,6 +52,7 @@ class Snake:
 			else:
 				self.forebears = self.forebears+parent1.forebears+parent2.forebears
 		# Instantiation of morphs
+
 		if (traits != 0):
 			self.traits = traits
 		else:
@@ -73,7 +74,27 @@ class Snake:
 						pass
 				else:
 					traitsfromparent2.append(parent2.traits[i][0])
-			self.traits = traitsfromparent2+traitsfromparent1
+			traitlist = traitsfromparent2+traitsfromparent1
+			traitlist.sort()
+			# Fine to here
+			i = 0
+			while (i<len(traitlist)):
+				print i
+				if (i+1 >= len(traitlist)):
+					newtrait = [traitlist[i]]
+					self.traits.append(newtrait)
+					i = i + 25
+					break
+
+				else:
+					if traitlist[i] == traitlist[i+1]:
+						newtrait = [traitlist[i],traitlist[i+1]]
+						i = i+2
+					else:
+						newtrait = [traitlist[i]]
+						i = i+1
+					self.traits.append(newtrait)
+			print self.traits
 
 	# def add_forebears(self, parent1, parent2):
 	# 	if (parent1.forebears):
@@ -107,17 +128,11 @@ for i in range(0,len(data)):
 	data[i][1] = float(data[i][1])
 	data[i][2] = float(data[i][2])
 
-try:
-	print Snake('f',snakes[0],snakes[1]).forebears
-except:
-	pass
+
 try:
 	breed(snakes[0],snakes[1])
 except:
 	pass
-try:
-	print(snakes[2].traits)
-except:
-	pass
 
 
+print snakes
