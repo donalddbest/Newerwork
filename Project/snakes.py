@@ -22,27 +22,26 @@ def prediction(age, traits, sex, time):
 
 class Snake:
 	"""This class defines an individual snake and instantiates its genetics"""
-	def __init__(self, name, parent1 = 0, parent2 = 0, traits = 0):
+	def __init__(self, name, parent1 = 0, parent2 = 0, traits = 0, sex = 0, age = 0):
 		self.name = name
-		sexnum = np.random.binomial(size = 1, n = 1, p = .5)[0]
-		if (sexnum == 0):
-			self.sex = 'Male'
-		else:
-			self.sex = 'Female'
+		if (not sex):
+			sexnum = np.random.binomial(size = 1, n = 1, p = .5)[0]
+			if (sexnum == 0):
+				self.sex = 'Male'
+			else:
+				self.sex = 'Female'
 		self.traits = []
 		self.forebears = [self.name]
 		self.parents = []
-		self.age = 0
+		self.age = age
 		self.price = 0
 		if (parent1 or parent2):
 			if (not set(parent1.forebears).isdisjoint(parent2.forebears)):
 				raise ValueError()
 			if (parent1.sex == parent2.sex):
 				raise ValueError()
-
-	def add_trait(self, trait):
-		self.traits.append(trait)
-	
+		if (traits):
+			self.traits = traits
 	# def add_parents(self, parent1, parent2):
 	# 	self.parents.append(parent1.name)
 	# 	self.parents.append(parent2.name)
@@ -65,8 +64,8 @@ def breed(snake1,snake2):
 		for i in range(1,numbabies):
 			snakes.append( Snake(names[i], snake1,snake2))
 
-snakes.append(Snake('a'))
-snakes.append(Snake('b'))
+snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1],codom[1]]]))
+snakes.append(Snake('b', sex = 'Female', age = 1))
 
 snakes.append(Snake('c'))
 snakes.append(Snake('d'))
@@ -87,8 +86,8 @@ try:
 except:
 	pass
 try:
-	print(snakes[3].forebears)
+	print(snakes[0].traits)
 except:
 	pass
-# test comment
+
 
