@@ -24,6 +24,7 @@ class Snake:
 	"""This class defines an individual snake and instantiates its genetics"""
 	def __init__(self, name, parent1 = 0, parent2 = 0, traits = 0, sex = 0, age = 0):
 		self.name = name
+		self.numTimesBred = 0
 		# Randomly assigns Male or Female to a snake
 		if (sex == 0):
 			sexnum = np.random.binomial(size = 1, n = 1, p = .5)[0]
@@ -89,7 +90,6 @@ class Snake:
 			traitlist.sort()
 			i = 0
 			while (i<len(traitlist)):
-				print i
 				if (i+1 >= len(traitlist)):
 					newtrait = [traitlist[i]]
 					self.traits.append(newtrait)
@@ -118,12 +118,15 @@ class Snake:
 
 def breed(snake1,snake2):
 	yesno = np.random.binomial(size = 1, n = 1, p = .6)[0]
-	if (yesno == 0):
-		pass
-	else:
-		numbabies = np.floor(np.random.triangular(2,6,13, 1))
-		for i in range(1,numbabies):
-			snakes.append( Snake(names[i], snake1,snake2))
+	if snake1.numTimesBreedable <= snake1.numTimesBred + 1 or snake2.numTimesBreedable <= snake2.numTimesBred + 1:
+		if (yesno == 0):
+			pass
+		else:
+			snake2.numTimesBred = snake2.numTimesBred + 1
+			snake1.numTimesBred = snake1.numTimesBred + 1
+			numbabies = np.floor(np.random.triangular(2,6,13, 1))
+			for i in range(1,numbabies):
+				snakes.append( Snake(names[i], snake1,snake2))
 
 snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
 snakes.append(Snake('b', sex = 'Female', age = 1, traits = [[recessives[0]],[codom[2]]]))

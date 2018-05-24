@@ -39,3 +39,5 @@ def log_error(e):
     print(e)
 
 raw_html = simple_get('https://www.morphmarket.com/us/c/reptiles/pythons/ball-pythons/index?epoch=1')
+html = BeautifulSoup(raw_html,'html.parser')
+divs = soup.find_all('div',{"class":'trait-count'})
