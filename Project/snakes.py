@@ -29,10 +29,20 @@ class Snake:
 			sexnum = np.random.binomial(size = 1, n = 1, p = .5)[0]
 			if (sexnum == 0):
 				self.sex = 'Male'
+				self.numTimesBreedable = 5
+				self.ageBreedable = 1
 			else:
 				self.sex = 'Female'
+				self.numTimesBreedable = 1
+				self.ageBreedable = 2
 		else:
 			self.sex = sex
+			if (sex == 'Male'):
+				self.numTimesBreedable = 5
+				self.ageBreedable = 1
+			else:
+				self.numTimesBreedable = 1
+				self.ageBreedable = 2
 		self.traits = []
 		self.forebears = [self.name]
 		self.parents = []
@@ -52,9 +62,10 @@ class Snake:
 			else:
 				self.forebears = self.forebears+parent1.forebears+parent2.forebears
 		# Instantiation of morphs
-
+		# Checks whether it's a starting snake
 		if (traits != 0):
 			self.traits = traits
+		# Assigns half of the genes from one parent and half from the other.
 		else:
 			for i in range(0,len(parent1.traits)):
 				# Gets morphs from parent1
@@ -76,7 +87,6 @@ class Snake:
 					traitsfromparent2.append(parent2.traits[i][0])
 			traitlist = traitsfromparent2+traitsfromparent1
 			traitlist.sort()
-			# Fine to here
 			i = 0
 			while (i<len(traitlist)):
 				print i
@@ -135,4 +145,4 @@ except:
 	pass
 
 
-print snakes
+
