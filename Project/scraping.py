@@ -40,4 +40,6 @@ def log_error(e):
 
 raw_html = simple_get('https://www.morphmarket.com/us/c/reptiles/pythons/ball-pythons/index?epoch=1')
 html = BeautifulSoup(raw_html,'html.parser')
-divs = soup.find_all('div',{"class":'trait-count'})
+divs = html.find_all('div',{"class":'trait-count'})
+div1 = divs[2]
+print div1.find('href')
