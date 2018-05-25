@@ -15,7 +15,7 @@ codom = ['Pastel', 'Fire', 'Banana']
 curtime = time.time() 
 capacity = 3
 snakes = []
-kept = []
+transitive = []
 def prediction(age, traits, sex, time):
 	"""Not yet implemented, will take those three/four arguments and return the price of the a snake with the given features."""
 	print 'prediction is working thus far (for what it is worth)'
@@ -118,7 +118,7 @@ class Snake:
 
 def breed(snake1,snake2):
 	yesno = np.random.binomial(size = 1, n = 1, p = .6)[0]
-	if snake1.numTimesBreedable <= snake1.numTimesBred + 1 or snake2.numTimesBreedable <= snake2.numTimesBred + 1:
+	if (snake1.numTimesBreedable <= snake1.numTimesBred + 1 or snake2.numTimesBreedable <= snake2.numTimesBred + 1) and (snake1.age>=snake1.ageBreedable and snake2.age>=snake2.ageBreedable) and (snake1.sex != snake2.sex):
 		if (yesno == 0):
 			pass
 		else:
@@ -128,8 +128,12 @@ def breed(snake1,snake2):
 			for i in range(1,numbabies):
 				snakes.append( Snake(names[i], snake1,snake2))
 
+def tick(snakes, transitive):
+	for i in range(0, len(snakes)):
+		snakes[i].age = snakes[i].age + 1
+
 snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
-snakes.append(Snake('b', sex = 'Female', age = 1, traits = [[recessives[0]],[codom[2]]]))
+snakes.append(Snake('b', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
 
 snakes.append(Snake('c', parent1 = snakes[0], parent2 = snakes[1]))
 # snakes.append(Snake('d'))
@@ -146,6 +150,5 @@ try:
 	breed(snakes[0],snakes[1])
 except:
 	pass
-
 
 
