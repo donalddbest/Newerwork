@@ -2,6 +2,7 @@ from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
+import time
 
 def simple_get(url):
     """
@@ -38,8 +39,25 @@ def log_error(e):
     """
     print(e)
 
+traitsfile = open('traitsfile.txt','w')
+
 raw_html = simple_get('https://www.morphmarket.com/us/c/reptiles/pythons/ball-pythons/index?epoch=1')
 html = BeautifulSoup(raw_html,'html.parser')
-divs = html.find_all('div',{"class":'trait-count'})
-div1 = divs[2]
-print div1.find('href')
+divs = html.find('div',{"class":'gene-index clearfix'})
+anchorlist = divs.find_all('a', href  = True)
+hrefs = []
+traithrefs = []
+for a in anchorlist:
+	hrefs.append('https://www.morphmarket.com'+str(a['href']))
+for h in hrefs:
+	new_html = simple_get(h)
+	traithtml = BeautifulSoup(new_html,'html.parser')
+	print traithtml
+	traitdivs = traithtml.find('div',{"class":'row-container'})
+	
+	time.sleep(10)
+	# traitanchorlist = traitdivs.find_all('a', href = True)
+	# 
+	# for b in traitanchorlist:
+	# 	string = 'https://www.morphmarket.com'+str(b['href'])
+	# 	traitsfile.write("%s\n" % string)
