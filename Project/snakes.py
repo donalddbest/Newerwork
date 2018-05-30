@@ -13,7 +13,7 @@ codom = ['Pastel', 'Fire', 'Banana']
 
 # np.random.seed(726366)
 curtime = time.time() 
-capacity = 3
+capacity = 10
 snakes = []
 transitive = []
 def prediction(age, traits, sex, time):
@@ -126,14 +126,26 @@ def breed(snake1,snake2):
 			snake1.numTimesBred = snake1.numTimesBred + 1
 			numbabies = np.floor(np.random.triangular(2,6,13, 1))
 			for i in range(1,numbabies):
-				snakes.append( Snake(names[i], snake1,snake2))
+				transitive.append( Snake(names[i], snake1,snake2))
 
 def tick(snakes, transitive):
 	for i in range(0, len(snakes)):
 		snakes[i].age = snakes[i].age + 1
+	for i in range(0,len(snakes)):
+		for j in range(0,len(snakes)):
+			try:
+				breed(snakes[i],snakes[j])
+			except:
+				pass
+	sorted(transitive, key = lambda snake: snake.price, reverse = True)
+	if len(transitive)>capacity:
+		for i in range(0, len(transitive)-capacity):
+			print('Need to sell %s' % transitive[capacity+i].name)
+
 
 snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
 snakes.append(Snake('b', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
+snakes.append(Snake('d', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
 
 snakes.append(Snake('c', parent1 = snakes[0], parent2 = snakes[1]))
 # snakes.append(Snake('d'))
@@ -147,8 +159,8 @@ for i in range(0,len(data)):
 
 
 try:
-	breed(snakes[0],snakes[1])
+	tick(snakes, transitive)
 except:
 	pass
-
+print len(transitive)
 
