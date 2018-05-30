@@ -1,3 +1,5 @@
-Normal, 15, 22
-Pastel, 50, 55
-Axanthic, 85, 93
+Pastel, 15
+Axanthic, 40
+Albino, 15
+Clown, 10
+Banana, 20

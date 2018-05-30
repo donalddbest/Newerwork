@@ -8,12 +8,17 @@ df = pandas.read_csv('babies-first-names-1980-1989.csv')
 names = df.FirstForename
 names = np.unique(names)
 names = names[2:len(names)]
+data = list(csv.reader(open('prices.txt')))
+for i in range(0,len(data)):
+	data[i][1] = float(data[i][1])
+	# data[i][2] = float(data[i][2])
+
 recessives = ['Albino','Clown','Axanthic']
 codom = ['Pastel', 'Fire', 'Banana']
 
 # np.random.seed(726366)
 curtime = time.time() 
-capacity = 10
+capacity = 20
 snakes = []
 transitive = []
 def prediction(age, traits, sex, time):
@@ -48,7 +53,7 @@ class Snake:
 		self.forebears = [self.name]
 		self.parents = []
 		self.age = age
-		self.price = 0
+		self.price = 15
 		traitsfromparent1 = []
 		traitsfromparent2 = []
 		traitlist = []
@@ -104,19 +109,19 @@ class Snake:
 						newtrait = [traitlist[i]]
 						i = i+1
 					self.traits.append(newtrait)
-			print self.traits
+		# Assigns price to snake
+		# In progress
+		for i in range(0,len(self.traits)):
+			for j in range(0,len(data)):
+				if self.traits[i][0] == data[j][0]:
+					self.price = self.price + data[j][1]
+				else:
+					pass
 
-	# def add_forebears(self, parent1, parent2):
-	# 	if (parent1.forebears):
-	# 		self.forebears= self.forebears + parent1.forebears
-	# 	if (parent2.forebears):
-	# 		self.forebears= self.forebears + parent2.forebears
-	# 	# self.forebears.append(parent1.name)
-	# 	# self.forebears.append(parent2.name)
-	def add_price(self):
-		self.price = prediction(self.age, self.traits, self.sex, curtime)
+
 
 def breed(snake1,snake2):
+	"""Given two snakes, determines whether they can breed and if they can possibly generates a clutch and if it generates a clutch generates a variable number of babies."""
 	yesno = np.random.binomial(size = 1, n = 1, p = .6)[0]
 	if (snake1.numTimesBreedable <= snake1.numTimesBred + 1 or snake2.numTimesBreedable <= snake2.numTimesBred + 1) and (snake1.age>=snake1.ageBreedable and snake2.age>=snake2.ageBreedable) and (snake1.sex != snake2.sex):
 		if (yesno == 0):
@@ -129,6 +134,7 @@ def breed(snake1,snake2):
 				transitive.append( Snake(names[i], snake1,snake2))
 
 def tick(snakes, transitive):
+	"""This function will simulate a year, so will age every snake 1 year and will call breed on the most valuable snakes and decide which snakes to keep and sell down to capacity."""
 	for i in range(0, len(snakes)):
 		snakes[i].age = snakes[i].age + 1
 	for i in range(0,len(snakes)):
@@ -137,30 +143,26 @@ def tick(snakes, transitive):
 				breed(snakes[i],snakes[j])
 			except:
 				pass
+	# The next two lines filter males and females so the optimal male to female ratio can be used.
+	males = [snake for snake in transitive if snake.sex == 'Male']
+	females = [snake for snake in transitive if snake.sex == 'Female']
+
 	sorted(transitive, key = lambda snake: snake.price, reverse = True)
-	if len(transitive)>capacity:
-		for i in range(0, len(transitive)-capacity):
-			print('Need to sell %s' % transitive[capacity+i].name)
+	# if len(transitive)>capacity:
+	# 	for i in range(0, len(transitive)-capacity):
+	# 		print('Need to sell %s' % transitive[capacity+i].name)
 
-
+# Test snakes
 snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
 snakes.append(Snake('b', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
 snakes.append(Snake('d', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
 
 snakes.append(Snake('c', parent1 = snakes[0], parent2 = snakes[1]))
-# snakes.append(Snake('d'))
-# snakes[2].add_forebears(snakes[0],snakes[1])
-# snakes[3].add_forebears(snakes[0],snakes[1])
-
-data = list(csv.reader(open('prices.txt')))
-for i in range(0,len(data)):
-	data[i][1] = float(data[i][1])
-	data[i][2] = float(data[i][2])
 
 
 try:
 	tick(snakes, transitive)
 except:
 	pass
-print len(transitive)
+
 
