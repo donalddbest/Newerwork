@@ -132,7 +132,17 @@ def breed(snake1,snake2):
 			numbabies = np.floor(np.random.triangular(2,6,13, 1))
 			for i in range(1,numbabies):
 				transitive.append( Snake(names[i], snake1,snake2))
-
+def hypobreed(snake1, snake2):
+	revvec = []
+	pricevec = []
+	for i in range(0,100):
+		numbabies = np.floor(np.random.triangular(2,6,13, 1))
+		for i in range(0,numbabies):
+			pricevec.append(Snake('test',snake1,snake2).price)
+		revvec.append(sum(pricevec))
+		pricevec = []
+	mean = np.mean(revvec)
+	print mean
 def tick(snakes, transitive):
 	"""This function will simulate a year, so will age every snake 1 year and will call breed on the most valuable snakes and decide which snakes to keep and sell down to capacity."""
 	for i in range(0, len(snakes)):
@@ -144,9 +154,10 @@ def tick(snakes, transitive):
 			except:
 				pass
 	# The next two lines filter males and females so the optimal male to female ratio can be used.
-	males = [snake for snake in transitive if snake.sex == 'Male']
+	males = sorted([snake for snake in transitive if snake.sex == 'Male'], key = lambda snake: snake.price, reverse = True)
 	females = [snake for snake in transitive if snake.sex == 'Female']
-
+	# for i in range(0, len(males)):
+	# 	if decisionrule(males,)
 	sorted(transitive, key = lambda snake: snake.price, reverse = True)
 	# if len(transitive)>capacity:
 	# 	for i in range(0, len(transitive)-capacity):
@@ -161,7 +172,7 @@ snakes.append(Snake('c', parent1 = snakes[0], parent2 = snakes[1]))
 
 
 try:
-	tick(snakes, transitive)
+	print hypobreed(snakes[0],snakes[1])
 except:
 	pass
 
