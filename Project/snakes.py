@@ -12,6 +12,7 @@ data = list(csv.reader(open('prices.txt')))
 for i in range(0,len(data)):
 	data[i][1] = float(data[i][1])
 	# data[i][2] = float(data[i][2])
+traitsfile = open('traitsfile.txt','w')
 
 recessives = ['Albino','Clown','Axanthic']
 codom = ['Pastel', 'Fire', 'Banana']
@@ -142,7 +143,7 @@ def hypobreed(snake1, snake2):
 		revvec.append(sum(pricevec))
 		pricevec = []
 	mean = np.mean(revvec)
-	print mean
+	return mean
 def tick(snakes, transitive):
 	"""This function will simulate a year, so will age every snake 1 year and will call breed on the most valuable snakes and decide which snakes to keep and sell down to capacity."""
 	for i in range(0, len(snakes)):
@@ -156,9 +157,13 @@ def tick(snakes, transitive):
 	# The next two lines filter males and females so the optimal male to female ratio can be used.
 	males = sorted([snake for snake in transitive if snake.sex == 'Male'], key = lambda snake: snake.price, reverse = True)
 	females = [snake for snake in transitive if snake.sex == 'Female']
-	# for i in range(0, len(males)):
-	# 	if decisionrule(males,)
-	sorted(transitive, key = lambda snake: snake.price, reverse = True)
+	print females
+	bestvec = []
+	for i in range(0, len(males)):
+		for i in range(0, len(females)):
+			bestvec.append([males[i],females[j],hypobreed(males[i],females[j])])
+			print 'got here'
+	print bestvec
 	# if len(transitive)>capacity:
 	# 	for i in range(0, len(transitive)-capacity):
 	# 		print('Need to sell %s' % transitive[capacity+i].name)
@@ -172,7 +177,7 @@ snakes.append(Snake('c', parent1 = snakes[0], parent2 = snakes[1]))
 
 
 try:
-	print hypobreed(snakes[0],snakes[1])
+	tick(snakes, transitive)
 except:
 	pass
 
