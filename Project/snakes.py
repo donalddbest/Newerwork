@@ -3,6 +3,7 @@ import time
 import numpy as np
 import pandas
 import math
+import cvxpy
 
 df = pandas.read_csv('babies-first-names-1980-1989.csv')
 names = df.FirstForename
@@ -13,15 +14,16 @@ for i in range(0,len(data)):
 	data[i][1] = float(data[i][1])
 	# data[i][2] = float(data[i][2])
 traitsfile = open('traitsfile.txt','w')
+breedingrule = 0
 
 recessives = ['Albino','Clown','Axanthic']
 codom = ['Pastel', 'Fire', 'Banana']
 
 # np.random.seed(726366)
+nameindex = 0
 curtime = time.time() 
-capacity = 20
+capacity = 15
 snakes = []
-transitive = []
 def prediction(age, traits, sex, time):
 	"""Not yet implemented, will take those three/four arguments and return the price of the a snake with the given features."""
 	print 'prediction is working thus far (for what it is worth)'
@@ -132,18 +134,34 @@ def breed(snake1,snake2):
 			snake1.numTimesBred = snake1.numTimesBred + 1
 			numbabies = np.floor(np.random.triangular(2,6,13, 1))
 			for i in range(1,numbabies):
-				transitive.append( Snake(names[i], snake1,snake2))
+				global nameindex
+				transitive.append( Snake(names[nameindex], snake1,snake2))
+				nameindex = nameindex + 1
+
 def hypobreed(snake1, snake2):
-	revvec = []
-	pricevec = []
-	for i in range(0,100):
-		numbabies = np.floor(np.random.triangular(2,6,13, 1))
-		for i in range(0,numbabies):
-			pricevec.append(Snake('test',snake1,snake2).price)
-		revvec.append(sum(pricevec))
-		pricevec = []
-	mean = np.mean(revvec)
-	return mean
+	# Edit this so it actually does expected values!!!!!
+	exprev = 0
+	traitlist = []
+	if (not set(snake1.forebears).isdisjoint(snake2.forebears)):
+		return 0
+	# Checks whether parents are same sex
+	elif (snake1.sex == snake2.sex):
+		return 0
+		# Make a probability matrix for offspring and a price matrix for that 
+	else:
+		for trait in snake1.traits:
+			traitlist = traitlist + trait
+		for i in range(0, len(data)):
+			for trait in traitlist:
+				if trait == data[i][0]:
+					exprev = exprev + .25*data[i][1]
+		for trait in snake2.traits:
+			traitlist = traitlist + trait
+		for i in range(0, len(data)):
+			for trait in traitlist:
+				if trait == data[i][0]:
+					exprev = exprev + .25*data[i][1]
+	return exprev + 20
 def tick(snakes, transitive):
 	"""This function will simulate a year, so will age every snake 1 year and will call breed on the most valuable snakes and decide which snakes to keep and sell down to capacity."""
 	for i in range(0, len(snakes)):
@@ -155,15 +173,33 @@ def tick(snakes, transitive):
 			except:
 				pass
 	# The next two lines filter males and females so the optimal male to female ratio can be used.
-	males = sorted([snake for snake in transitive if snake.sex == 'Male'], key = lambda snake: snake.price, reverse = True)
+	if breedingrule == 1:
+		if capacity> len(transitive):
+			snakes = transitive
+		else:
+			rand = np.random.randint(0,len(transitive), size = l)
+			snakes = [transitive[index] for index in rand]
+		return 0
+	males = [snake for snake in transitive if snake.sex == 'Male']
 	females = [snake for snake in transitive if snake.sex == 'Female']
-	print females
-	bestvec = []
-	for i in range(0, len(males)):
-		for i in range(0, len(females)):
-			bestvec.append([males[i],females[j],hypobreed(males[i],females[j])])
-			print 'got here'
-	print bestvec
+	if breedingrule == 0:
+		utmat = np.empty([len(males),len(females)])
+		bestvec = []
+		for i in range(0, len(males)):
+			for j in range(0, len(females)):
+				try:
+					utmat[i,j] = hypobreed(males[i],females[j])
+				except:
+					pass
+		
+		selection = cvxpy.Bool(*utmat.shape)
+		male_constraint = cvxpy.sum_entries(selection, axis = 0) <=5
+		female_constraint = cvxpy.sum_entries(selection, axis = 1) <=1
+		capacity_constraint = cvxpy.sum_entries(selection)<=15
+		tot = cvxpy.sum_entries(cvxpy.mulelemwise(utmat, selection))
+		problem = cvxpy.Problem(cvxpy.Maximize(tot), constraints =[male_constraint, female_constraint, capacity_constraint])
+		problem.solve(solver = cvxpy.GLPK_MI)
+	
 	# if len(transitive)>capacity:
 	# 	for i in range(0, len(transitive)-capacity):
 	# 		print('Need to sell %s' % transitive[capacity+i].name)
@@ -173,8 +209,8 @@ snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessi
 snakes.append(Snake('b', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
 snakes.append(Snake('d', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
 
-snakes.append(Snake('c', parent1 = snakes[0], parent2 = snakes[1]))
-
+snakes.append(Snake('c', sex = 'Male' ,traits = [[recessives[1]],[codom[0],codom[0]]]))
+transitive = list(snakes)
 
 try:
 	tick(snakes, transitive)
