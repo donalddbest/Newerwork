@@ -3,7 +3,9 @@ import time
 import numpy as np
 import pandas
 import math
-import cvxpy
+from __future__ import division
+from pyomo.environ import *
+
 
 df = pandas.read_csv('babies-first-names-1980-1989.csv')
 names = df.FirstForename
@@ -26,7 +28,6 @@ capacity = 15
 snakes = []
 def prediction(age, traits, sex, time):
 	"""Not yet implemented, will take those three/four arguments and return the price of the a snake with the given features."""
-	print 'prediction is working thus far (for what it is worth)'
 
 class Snake:
 	"""This class defines an individual snake and instantiates its genetics"""
@@ -166,13 +167,22 @@ def tick(snakes, transitive):
 	"""This function will simulate a year, so will age every snake 1 year and will call breed on the most valuable snakes and decide which snakes to keep and sell down to capacity."""
 	for i in range(0, len(snakes)):
 		snakes[i].age = snakes[i].age + 1
-	for i in range(0,len(snakes)):
-		for j in range(0,len(snakes)):
+	smales = sorted([snake for snake in snakes if snake.sex == 'Male'], key = lambda x: x.price, reverse = True)
+	sfemales = sorted([snake for snake in snakes if snake.sex == 'Female'], key = lambda x: x.price, reverse = True)
+	for i in range(0,len(smales)):
+		for j in range(0,len(sfemales)):
+
 			try:
-				breed(snakes[i],snakes[j])
+				breed(smales[i],sfemales[j])
+				if smales[i].numTimesBred == smales[i].numTimesBreedable:
+					del smales[i]
+				else:
+					pass
+				del sfemales[j]
+
 			except:
 				pass
-	# The next two lines filter males and females so the optimal male to female ratio can be used.
+	
 	if breedingrule == 1:
 		if capacity> len(transitive):
 			snakes = transitive
@@ -183,26 +193,37 @@ def tick(snakes, transitive):
 	males = [snake for snake in transitive if snake.sex == 'Male']
 	females = [snake for snake in transitive if snake.sex == 'Female']
 	if breedingrule == 0:
-		utmat = np.empty([len(males),len(females)])
-		bestvec = []
+		utmat = []
+		vars = []
 		for i in range(0, len(males)):
+			utmat.append([])
 			for j in range(0, len(females)):
 				try:
-					utmat[i,j] = hypobreed(males[i],females[j])
+					utmat[i].append(hypobreed(males[i],females[j]))
 				except:
 					pass
+		model = AbstractModel()
+		model.m = Param(within = NonNegativeIntegers)
+		model.n = Param(within = NonNegativeIntegers)
+		model.I = RangeSet(1, model.m)
+		model.J = RangeSet(1, model.n)
+		model.revs = Param(model.I, model.J)
+		model.x = Var(model.I, model.J, domain = Binary)
+		model.y = Var(model.J, domain = Binary)
+		model.z = Var(model.I, domain = Binary)
+		def obj_expression(model):
+			return summation(model.revs,model.x) + summation(5,model.y)+summation(5,model.z)
+		model.OBJ = Objective(rule = obj_expression)
+		def rowx_constraint_rule(model,i):
+			return sum(model.x[j] for j in model.J) <= 5
+		def colx_constraint_rule(model,j):
+			return sum(model.x[i] for i in model.I) <= 1
+		def capcons(model):
+			return sum(model.y[])
+		model.row = Constraint(model.I, rule = rowx_constraint_rule)
+		model.col = Constraint(model.I, rule = colx_constraint_rule)
+
 		
-		selection = cvxpy.Bool(*utmat.shape)
-		male_constraint = cvxpy.sum_entries(selection, axis = 0) <=5
-		female_constraint = cvxpy.sum_entries(selection, axis = 1) <=1
-		capacity_constraint = cvxpy.sum_entries(selection)<=15
-		tot = cvxpy.sum_entries(cvxpy.mulelemwise(utmat, selection))
-		problem = cvxpy.Problem(cvxpy.Maximize(tot), constraints =[male_constraint, female_constraint, capacity_constraint])
-		problem.solve(solver = cvxpy.GLPK_MI)
-	
-	# if len(transitive)>capacity:
-	# 	for i in range(0, len(transitive)-capacity):
-	# 		print('Need to sell %s' % transitive[capacity+i].name)
 
 # Test snakes
 snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
@@ -214,6 +235,7 @@ transitive = list(snakes)
 
 try:
 	tick(snakes, transitive)
+	print transitive[]
 except:
 	pass
 
