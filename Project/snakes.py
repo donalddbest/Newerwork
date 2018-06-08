@@ -204,7 +204,7 @@ def tick(snakes, transitive):
 					pass
 		utmat = dict(((i+1,j+1), utmat[i][j]) for i in range(len(utmat)) for j in range(len(utmat[0])))
 		print utmat
-		model = AbstractModel()
+		model = ConcreteModel()
 		
 		model.I = range(len(males))
 		model.J = range(len(females))
@@ -213,28 +213,38 @@ def tick(snakes, transitive):
 		model.y = Var(model.I, domain = Binary)
 		model.z = Var(model.J, domain = Binary)
 		def obj_expression(model):
-			return sum(model.x[i,j]*utmat[i,j] for i in model.I for j in model.J) + sum(4000*model.y[i] for i in model.I)+sum(4000*model.z[j] for j in model.J)
+			return 6*sum(model.x[i,j]*utmat[i+1,j+1] for i in model.I for j in model.J) + sum(-80*model.y[i] for i in model.I)+sum(-80*model.z[j] for j in model.J)
 		model.OBJ = Objective(rule = obj_expression, sense = maximize)
-		def rowx_constraint_rule(model,i):
-			return sum(model.x[j] for j in model.J) <= 5
-		def colx_constraint_rule(model,j):
-			return sum(model.x[i] for i in model.I) <= 1
+		# def rowx_constraint_rule(model,i):
+		# 	return sum(model.x[j] for j in model.J) <= 5
+		# def colx_constraint_rule(model,j):
+		# 	return sum(model.x[i] for i in model.I) <= 1
 		def capcons(model):
 			return sum(model.y[i] for i in model.I) + sum(model.z[j] for j in model.J) <= 15
-		def indycon(model, i):
-			return sum(model.x[j] for j in model.J) < 500*(1-model.y)
-		def indzcon(model, j):
-			return sum(model.x[i] for i in model.I) < 500*(1-z)
+		# def indycon(model, i):
+		# 	return sum(model.x[j] for j in model.J) < 500*(1-model.y)
+		# def indzcon(model, j):
+		# 	return sum(model.x[i] for i in model.I) < 500*(1-z)
 		model.row = ConstraintList()
 		for i in model.I:
-			model.row.add(sum(model.x[i+1,j+1] for j in model.J)<=5)
-		model.col = Constraint(model.J, rule = colx_constraint_rule)
+			model.row.add(sum(model.x[i,j] for j in model.J)<=5)
+		model.col = ConstraintList()
+		for j in model.J:
+			model.row.add(sum(model.x[i,j] for i in model.I)<=1)
 		model.capcon = Constraint(model.I, model.J, rule = capcons)
-		model.indycon = Constraint(model.I, rule = indycon)
-		model.indzcon = Constraint(model.J, rule = indzcon)
-		instance = model.create_instance()
+		model.indycon = ConstraintList()
+		for i in model.I:
+			model.indycon.add(sum(model.x[i,j] for j in model.J)<= 500*model.y[i])
+		model.indzcon = ConstraintList()
+		for j in model.J:
+			model.indzcon.add(sum(model.x[i,j] for i in model.I)<= 500*model.z[j])
 		opt = SolverFactory('glpk')
-		results = opt.solve(instance)
+		results = opt.solve(model)
+		for i in model.I:
+			print model.y[i].value
+		print 'males done'
+		for j in model.J:
+			print model.z[j].value
 
 # Test snakes
 snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))

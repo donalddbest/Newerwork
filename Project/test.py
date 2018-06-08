@@ -4,7 +4,7 @@ from pyomo.environ import *
 model = AbstractModel()
 
 model.m = Param(1)
-model.n = Param(2)
+model.n = Param(within=NonNegativeIntegers)
 
 model.I = RangeSet(1, model.m)
 model.J = RangeSet(1, model.n)
