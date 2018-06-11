@@ -16,7 +16,9 @@ for i in range(0,len(data)):
 	data[i][1] = float(data[i][1])
 	# data[i][2] = float(data[i][2])
 traitsfile = open('traitsfile.txt','w')
+profitfile = open('profitfile.csv', "a")
 breedingrule = 0
+numyearssimulated = 5
 
 recessives = ['Albino','Clown','Axanthic']
 codom = ['Pastel', 'Fire', 'Banana']
@@ -24,7 +26,7 @@ codom = ['Pastel', 'Fire', 'Banana']
 # np.random.seed(726366)
 nameindex = 0
 curtime = time.time() 
-capacity = 15
+capacity = 20
 snakes = []
 def prediction(age, traits, sex, time):
 	"""Not yet implemented, will take those three/four arguments and return the price of the a snake with the given features."""
@@ -163,8 +165,9 @@ def hypobreed(snake1, snake2):
 				if trait == data[i][0]:
 					exprev = exprev + .25*data[i][1]
 	return exprev + 20
-def tick(snakes, transitive):
+def tick(transitive):
 	"""This function will simulate a year, so will age every snake 1 year and will call breed on the most valuable snakes and decide which snakes to keep and sell down to capacity."""
+	global snakes
 	for i in range(0, len(snakes)):
 		snakes[i].age = snakes[i].age + 1
 	smales = sorted([snake for snake in snakes if snake.sex == 'Male'], key = lambda x: x.price, reverse = True)
@@ -182,14 +185,33 @@ def tick(snakes, transitive):
 
 			except:
 				pass
-	
+	# if breedingrule == 2:
+	# 	if capacity>= len(transitive):
+	# 		snakes = transitive
+	# 	else:
+	# 		rev = 0
+	# 		males = [snake for snake in snakes if snake.sex == 'Male']
+	# 		females = [snake for snake in snakes if snake.sex == 'Female']
+	# 		keptmales = [males[index] for index in range(0,int(math.ceil(capacity/6)))]
+	# 		keptfemales = [females[index] for index in range(0,capacity - int(math.ceil(capacity/6)))]
+	# 		snakes = keptmales + keptfemales
+	# 		for i in range(int(math.ceil(capacity/6)), len(males)):
+	# 			rev = rev + males[i].price
+	# 		for j in range(capacity - int(math.ceil(capacity/6)), len(females)):
+	# 			rev = rev + males[j].price
+	# 		return rev
+
 	if breedingrule == 1:
 		if capacity> len(transitive):
 			snakes = transitive
 		else:
-			rand = np.random.randint(0,len(transitive), size = l)
+			rand = np.random.randint(0,len(transitive), size = capacity)
 			snakes = [transitive[index] for index in rand]
-		return 0
+			sellsnakes = [transitive[index] for index in range(0,len(transitive)) if index not in rand]
+			rev = 0
+			for i in range(0, len(sellsnakes)):
+				rev = rev + sellsnakes[i].price
+		return rev - 80*len(snakes)
 	males = [snake for snake in transitive if snake.sex == 'Male']
 	females = [snake for snake in transitive if snake.sex == 'Female']
 	if breedingrule == 0:
@@ -203,7 +225,6 @@ def tick(snakes, transitive):
 				except:
 					pass
 		utmat = dict(((i+1,j+1), utmat[i][j]) for i in range(len(utmat)) for j in range(len(utmat[0])))
-		print utmat
 		model = ConcreteModel()
 		
 		model.I = range(len(males))
@@ -220,7 +241,7 @@ def tick(snakes, transitive):
 		# def colx_constraint_rule(model,j):
 		# 	return sum(model.x[i] for i in model.I) <= 1
 		def capcons(model):
-			return sum(model.y[i] for i in model.I) + sum(model.z[j] for j in model.J) <= 15
+			return sum(model.y[i] for i in model.I) + sum(model.z[j] for j in model.J) <= capacity
 		# def indycon(model, i):
 		# 	return sum(model.x[j] for j in model.J) < 500*(1-model.y)
 		# def indzcon(model, j):
@@ -238,24 +259,60 @@ def tick(snakes, transitive):
 		model.indzcon = ConstraintList()
 		for j in model.J:
 			model.indzcon.add(sum(model.x[i,j] for i in model.I)<= 500*model.z[j])
-		opt = SolverFactory('glpk')
+		opt = SolverFactory('cbc')
+		opt.options['threads'] = 16
 		results = opt.solve(model)
-		for i in model.I:
-			print model.y[i].value
-		print 'males done'
-		for j in model.J:
-			print model.z[j].value
+		
+		keptindexm = [i for i in model.I if model.y[i].value == 1]
+		keptindexf = [j for j in model.J if model.z[j].value == 1]
+		keptm = [males[item] for item in keptindexm]
+		keptf = [females[item] for item in keptindexf]
+		sellindexm = [i for i in model.I if model.y[i].value == 0]
+		sellindexf = [j for j in model.J if model.z[j].value == 0]
+		sellm = [males[item] for item in sellindexm]
+		rev = 0
+		for i in range(0,len(sellm)):
+			rev = rev + sellm[i].price
+		sellf = [females[item] for item in sellindexf]
+		for i in range(0,len(sellf)):
+			rev = rev + sellf[i].price
+		snakes = keptm + keptf
+		return rev - 80*len(snakes)
 
 # Test snakes
 snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
 snakes.append(Snake('b', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
 snakes.append(Snake('d', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
+snakes.append(Snake('e', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
+snakes.append(Snake('f', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
+snakes.append(Snake('g', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[1]]]))
+snakes.append(Snake('h', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[0]]]))
+snakes.append(Snake('i', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[1]]]))
+snakes.append(Snake('j', sex = 'Female', age = 2, traits = [[recessives[1]],[codom[1]]]))
+snakes.append(Snake('k', sex = 'Female', age = 2, traits = [[recessives[1],recessives[1]],[codom[0]],[codom[2]]]))
+snakes.append(Snake('l', sex = 'Female', age = 2, traits = [[recessives[2],recessives[2]],[codom[0]],[codom[2]]]))
+snakes.append(Snake('m', sex = 'Female', age = 2, traits = [[recessives[2]],[codom[0],codom[0]],[codom[2]]]))
+snakes.append(Snake('n', sex = 'Female', age = 2, traits = [[codom[2],codom[2]]]))
+snakes.append(Snake('o', sex = 'Female', age = 2, traits = [[codom[1],codom[1]]]))
+
+
+
+
 
 snakes.append(Snake('c', sex = 'Male' ,traits = [[recessives[1]],[codom[0],codom[0]]]))
 transitive = list(snakes)
+profit = []
+
+for i in range(0,numyearssimulated):
+	profit.append(tick(transitive))
+	transitive = list(snakes)
+	print 'tick has tocked'
+
+for item in profit:
+	profitfile.write("%s, " % item)
+profitfile.write('%s\n' % breedingrule)
 
 
-tick(snakes, transitive)
 
 
 
