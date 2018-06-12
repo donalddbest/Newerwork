@@ -26,8 +26,9 @@ codom = ['Pastel', 'Fire', 'Banana']
 # np.random.seed(726366)
 nameindex = 0
 curtime = time.time() 
-capacity = 20
+capacity = 15
 snakes = []
+p = .6
 def prediction(age, traits, sex, time):
 	"""Not yet implemented, will take those three/four arguments and return the price of the a snake with the given features."""
 
@@ -128,7 +129,8 @@ class Snake:
 
 def breed(snake1,snake2):
 	"""Given two snakes, determines whether they can breed and if they can possibly generates a clutch and if it generates a clutch generates a variable number of babies."""
-	yesno = np.random.binomial(size = 1, n = 1, p = .6)[0]
+	global p
+	yesno = np.random.binomial(size = 1, n = 1, p = p)[0]
 	if (snake1.numTimesBreedable <= snake1.numTimesBred + 1 or snake2.numTimesBreedable <= snake2.numTimesBred + 1) and (snake1.age>=snake1.ageBreedable and snake2.age>=snake2.ageBreedable) and (snake1.sex != snake2.sex):
 		if (yesno == 0):
 			pass
@@ -204,6 +206,7 @@ def tick(transitive):
 	if breedingrule == 1:
 		if capacity> len(transitive):
 			snakes = transitive
+			return 80*len(snakes)
 		else:
 			rand = np.random.randint(0,len(transitive), size = capacity)
 			snakes = [transitive[index] for index in rand]
@@ -211,7 +214,7 @@ def tick(transitive):
 			rev = 0
 			for i in range(0, len(sellsnakes)):
 				rev = rev + sellsnakes[i].price
-		return rev - 80*len(snakes)
+			return rev - 80*len(snakes)
 	males = [snake for snake in transitive if snake.sex == 'Male']
 	females = [snake for snake in transitive if snake.sex == 'Female']
 	if breedingrule == 0:
@@ -280,39 +283,71 @@ def tick(transitive):
 		return rev - 80*len(snakes)
 
 # Test snakes
-snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
-snakes.append(Snake('b', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
-snakes.append(Snake('d', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
-snakes.append(Snake('e', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
-snakes.append(Snake('f', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
-snakes.append(Snake('g', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[1]]]))
-snakes.append(Snake('h', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[0]]]))
-snakes.append(Snake('i', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[1]]]))
-snakes.append(Snake('j', sex = 'Female', age = 2, traits = [[recessives[1]],[codom[1]]]))
-snakes.append(Snake('k', sex = 'Female', age = 2, traits = [[recessives[1],recessives[1]],[codom[0]],[codom[2]]]))
-snakes.append(Snake('l', sex = 'Female', age = 2, traits = [[recessives[2],recessives[2]],[codom[0]],[codom[2]]]))
-snakes.append(Snake('m', sex = 'Female', age = 2, traits = [[recessives[2]],[codom[0],codom[0]],[codom[2]]]))
-snakes.append(Snake('n', sex = 'Female', age = 2, traits = [[codom[2],codom[2]]]))
-snakes.append(Snake('o', sex = 'Female', age = 2, traits = [[codom[1],codom[1]]]))
+def initsnakes():
+	global snakes
+	snakes = []
+	snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
+	snakes.append(Snake('b', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
+	snakes.append(Snake('d', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
+	snakes.append(Snake('e', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
+	snakes.append(Snake('f', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
+	snakes.append(Snake('g', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[1]]]))
+	snakes.append(Snake('h', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[0]]]))
+	snakes.append(Snake('i', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[1]]]))
+	snakes.append(Snake('j', sex = 'Female', age = 2, traits = [[recessives[1]],[codom[1]]]))
+	snakes.append(Snake('k', sex = 'Female', age = 2, traits = [[recessives[1],recessives[1]],[codom[0]],[codom[2]]]))
+	snakes.append(Snake('l', sex = 'Female', age = 2, traits = [[recessives[2],recessives[2]],[codom[0]],[codom[2]]]))
+	snakes.append(Snake('m', sex = 'Female', age = 2, traits = [[recessives[2]],[codom[0],codom[0]],[codom[2]]]))
+	snakes.append(Snake('n', sex = 'Female', age = 2, traits = [[codom[2],codom[2]]]))
+	snakes.append(Snake('o', sex = 'Female', age = 2, traits = [[codom[1],codom[1]]]))
+	snakes.append(Snake('c', sex = 'Male' ,traits = [[recessives[1]],[codom[0],codom[0]]]))
 
 
-
-
-
-snakes.append(Snake('c', sex = 'Male' ,traits = [[recessives[1]],[codom[0],codom[0]]]))
 transitive = list(snakes)
-profit = []
 
-for i in range(0,numyearssimulated):
-	profit.append(tick(transitive))
-	transitive = list(snakes)
-	print 'tick has tocked'
-
-for item in profit:
-	profitfile.write("%s, " % item)
-profitfile.write('%s\n' % breedingrule)
-
-
+for i in range(0,30):
+	breedingrule = 0
+	initsnakes()
+	profit = []
+	for i in range(0,numyearssimulated):
+		profit.append(tick(transitive))
+		transitive = list(snakes)
+	for item in profit:
+		profitfile.write("%s, " % item)
+	profitfile.write('%s,' % breedingrule)
+	profitfile.write('%s\n' % p)
+	breedingrule = 1
+	initsnakes()
+	profit = []
+	for i in range(0,numyearssimulated):
+		profit.append(tick(transitive))
+		transitive = list(snakes)
+	for item in profit:
+		profitfile.write("%s, " % item)
+	profitfile.write('%s,' % breedingrule)
+	profitfile.write('%s\n' % p)
+p = .7
+for i in range(0,30):
+	breedingrule = 0
+	initsnakes()
+	profit = []
+	for i in range(0,numyearssimulated):
+		profit.append(tick(transitive))
+		transitive = list(snakes)
+	for item in profit:
+		profitfile.write("%s, " % item)
+	profitfile.write('%s,' % breedingrule)
+	profitfile.write('%s\n' % p)
+	breedingrule = 1
+	initsnakes()
+	profit = []
+	for i in range(0,numyearssimulated):
+		profit.append(tick(transitive))
+		transitive = list(snakes)
+	for item in profit:
+		profitfile.write("%s, " % item)
+	profitfile.write('%s,' % breedingrule)
+	profitfile.write('%s\n' % p)
 
 
 
