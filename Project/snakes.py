@@ -204,9 +204,9 @@ def tick(transitive):
 	# 		return rev
 
 	if breedingrule == 1:
-		if capacity> len(transitive):
-			snakes = transitive
-			return 80*len(snakes)
+		if capacity>= len(transitive):
+			snakes = list(transitive)
+			return -80*len(snakes)
 		else:
 			rand = np.random.randint(0,len(transitive), size = capacity)
 			snakes = [transitive[index] for index in rand]
@@ -285,6 +285,7 @@ def tick(transitive):
 # Test snakes
 def initsnakes():
 	global snakes
+	global transitive
 	snakes = []
 	snakes.append(Snake('a', sex = 'Male', age = 1, traits = [[recessives[0],recessives[0]],[codom[1]]]))
 	snakes.append(Snake('b', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[2]]]))
@@ -301,33 +302,12 @@ def initsnakes():
 	snakes.append(Snake('n', sex = 'Female', age = 2, traits = [[codom[2],codom[2]]]))
 	snakes.append(Snake('o', sex = 'Female', age = 2, traits = [[codom[1],codom[1]]]))
 	snakes.append(Snake('c', sex = 'Male' ,traits = [[recessives[1]],[codom[0],codom[0]]]))
+	transitive = list(snakes)
 
 
-transitive = list(snakes)
 
 for i in range(0,30):
-	breedingrule = 0
-	initsnakes()
-	profit = []
-	for i in range(0,numyearssimulated):
-		profit.append(tick(transitive))
-		transitive = list(snakes)
-	for item in profit:
-		profitfile.write("%s, " % item)
-	profitfile.write('%s,' % breedingrule)
-	profitfile.write('%s\n' % p)
-	breedingrule = 1
-	initsnakes()
-	profit = []
-	for i in range(0,numyearssimulated):
-		profit.append(tick(transitive))
-		transitive = list(snakes)
-	for item in profit:
-		profitfile.write("%s, " % item)
-	profitfile.write('%s,' % breedingrule)
-	profitfile.write('%s\n' % p)
-p = .7
-for i in range(0,30):
+	nameindex = 0
 	breedingrule = 0
 	initsnakes()
 	profit = []
