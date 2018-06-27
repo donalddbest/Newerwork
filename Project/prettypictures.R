@@ -19,6 +19,7 @@ avesev<- c(mean(optimseventy$V1), mean(optimseventy$V2), mean(optimseventy$V3), 
 
 # Create boxplot
 pdf('prelimcompstat.pdf')
-plot(c(1,2,3,4,5), avesev, type = 'l', col = 'green')
+plot(c(1,2,3,4,5), avesev, type = 'l', col = 'green', xlab = 'Year', ylab = 'Profit')
 lines(c(1,2,3,4,5), avesix, col = 'red')
+legend(3.5, 1000, c('Probability of clutch .7','Probability of clutch .6'), col = c('green', 'red'))
 dev.off()

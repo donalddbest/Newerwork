@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2017/Debian)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: outline.aux
+The style file: chicago.bst
+Database file #1: References.bib
+Warning--no journal in morrill
+Warning--no number and no volume in morrill
+Warning--page numbers missing in morrill
+You've used 2 entries,
+            2861 wiz_defined-function locations,
+            624 strings with 5078 characters,
+and the built_in function-call counts, 1081 in all, are:
+= -- 91
+> -- 52
+< -- 0
++ -- 14
+- -- 20
+* -- 80
+:= -- 208
+add.period$ -- 5
+call.type$ -- 2
+change.case$ -- 12
+chr.to.int$ -- 2
+cite$ -- 5
+duplicate$ -- 33
+empty$ -- 78
+format.name$ -- 20
+if$ -- 189
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 2
+newline$ -- 12
+num.names$ -- 20
+pop$ -- 7
+preamble$ -- 1
+purify$ -- 24
+quote$ -- 0
+skip$ -- 35
+stack$ -- 0
+substring$ -- 67
+swap$ -- 10
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 40
+warning$ -- 3
+while$ -- 22
+width$ -- 0
+write$ -- 26
+(There were 3 warnings)

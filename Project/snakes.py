@@ -11,21 +11,23 @@ df = pandas.read_csv('babies-first-names-1980-1989.csv')
 names = df.FirstForename
 names = np.unique(names)
 names = names[2:len(names)]
-data = list(csv.reader(open('prices.txt')))
+data = list(csv.reader(open('newprices.csv')))
+data = data[1:(len(data)-1)]
 for i in range(0,len(data)):
 	data[i][1] = float(data[i][1])
 	# data[i][2] = float(data[i][2])
 traitsfile = open('traitsfile.txt','w')
-profitfile = open('profitfile.csv', "a")
+profitfile = open('newprofitfile.csv', "a")
 breedingrule = 0
 numyearssimulated = 5
 
-recessives = ['Albino','Clown','Axanthic']
-codom = ['Pastel', 'Fire', 'Banana']
+recessives = ['Pied']
+codom = ['Pastel', 'Fire', 'Banana','Enchi','Mojave','GHI','YellowBelly']
+dom = ['Pinstripe']
+
 
 # np.random.seed(726366)
-nameindex = 0
-curtime = time.time() 
+nameindex = 0 
 capacity = 15
 snakes = []
 p = .6
@@ -60,7 +62,10 @@ class Snake:
 		self.forebears = [self.name]
 		self.parents = []
 		self.age = age
-		self.price = 15
+		if (self.sex == 'Male'):
+			self.price = 34.47
+		else:
+			self.price = 41.68
 		traitsfromparent1 = []
 		traitsfromparent2 = []
 		traitlist = []
@@ -137,7 +142,7 @@ def breed(snake1,snake2):
 		else:
 			snake2.numTimesBred = snake2.numTimesBred + 1
 			snake1.numTimesBred = snake1.numTimesBred + 1
-			numbabies = np.floor(np.random.triangular(2,6,13, 1))
+			numbabies = np.floor(np.random.triangular(3,6,14, 1))
 			for i in range(1,numbabies):
 				global nameindex
 				transitive.append( Snake(names[nameindex], snake1,snake2))
@@ -237,7 +242,7 @@ def tick(transitive):
 		model.y = Var(model.I, domain = Binary)
 		model.z = Var(model.J, domain = Binary)
 		def obj_expression(model):
-			return 6*sum(model.x[i,j]*utmat[i+1,j+1] for i in model.I for j in model.J) + sum(-80*model.y[i] for i in model.I)+sum(-80*model.z[j] for j in model.J)
+			return 6*sum(sum(model.x[i,j]*utmat[i+1,j+1] for j in model.J) for i in model.I) + sum(-80*model.y[i] for i in model.I)+sum(-80*model.z[j] for j in model.J)
 		model.OBJ = Objective(rule = obj_expression, sense = maximize)
 		# def rowx_constraint_rule(model,i):
 		# 	return sum(model.x[j] for j in model.J) <= 5
@@ -295,18 +300,18 @@ def initsnakes():
 	snakes.append(Snake('g', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[1]]]))
 	snakes.append(Snake('h', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[0]]]))
 	snakes.append(Snake('i', sex = 'Female', age = 2, traits = [[recessives[0]],[codom[1]]]))
-	snakes.append(Snake('j', sex = 'Female', age = 2, traits = [[recessives[1]],[codom[1]]]))
-	snakes.append(Snake('k', sex = 'Female', age = 2, traits = [[recessives[1],recessives[1]],[codom[0]],[codom[2]]]))
-	snakes.append(Snake('l', sex = 'Female', age = 2, traits = [[recessives[2],recessives[2]],[codom[0]],[codom[2]]]))
-	snakes.append(Snake('m', sex = 'Female', age = 2, traits = [[recessives[2]],[codom[0],codom[0]],[codom[2]]]))
-	snakes.append(Snake('n', sex = 'Female', age = 2, traits = [[codom[2],codom[2]]]))
-	snakes.append(Snake('o', sex = 'Female', age = 2, traits = [[codom[1],codom[1]]]))
-	snakes.append(Snake('c', sex = 'Male' ,traits = [[recessives[1]],[codom[0],codom[0]]]))
+	snakes.append(Snake('j', sex = 'Female', age = 2, traits = [[dom[0]],[codom[1]]]))
+	snakes.append(Snake('k', sex = 'Female', age = 2, traits = [[dom[0],dom[0]],[codom[0]],[codom[2]]]))
+	snakes.append(Snake('l', sex = 'Female', age = 2, traits = [[codom[3]],[codom[3]],[codom[2]]]))
+	snakes.append(Snake('m', sex = 'Female', age = 2, traits = [[codom[4]],[codom[5],codom[5]],[codom[2]]]))
+	snakes.append(Snake('n', sex = 'Female', age = 2, traits = [[codom[5],codom[5]]]))
+	snakes.append(Snake('o', sex = 'Female', age = 2, traits = [[codom[6],codom[6]]]))
+	snakes.append(Snake('c', sex = 'Male' ,age = 1, traits = [[codom[5]],[codom[0],codom[0]]]))
 	transitive = list(snakes)
 
 
 
-for i in range(0,30):
+for i in range(0,1):
 	nameindex = 0
 	breedingrule = 0
 	initsnakes()
