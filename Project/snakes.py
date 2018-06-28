@@ -6,33 +6,46 @@ import pandas
 import math
 from pyomo.environ import *
 
-
+# Unneccesarily gets a list of names to give to snakes
 df = pandas.read_csv('babies-first-names-1980-1989.csv')
 names = df.FirstForename
 names = np.unique(names)
 names = names[2:len(names)]
+
+# Brings the gene prices from the file called newprices.csv
 data = list(csv.reader(open('newprices.csv')))
 data = data[1:(len(data)-1)]
 for i in range(0,len(data)):
 	data[i][1] = float(data[i][1])
 	# data[i][2] = float(data[i][2])
-traitsfile = open('traitsfile.txt','w')
+
+# Connects to the file that will hold the data on profits
 profitfile = open('newprofitfile.csv', "a")
+
+# This tells the program which rule it should use to keep snakes
 breedingrule = 0
+
+# Tells how many years will be simulated
 numyearssimulated = 5
 
+# The traits the program will work with
 recessives = ['Pied']
 codom = ['Pastel', 'Fire', 'Banana','Enchi','Mojave','GHI','YellowBelly']
 dom = ['Pinstripe']
 
 
 # np.random.seed(726366)
+# Has the number for the name a snake will get
 nameindex = 0 
+
+# The holding capacity for snakes
 capacity = 15
+
 snakes = []
+
+# The probability a pairing will result in a clutch
 p = .6
-def prediction(age, traits, sex, time):
-	"""Not yet implemented, will take those three/four arguments and return the price of the a snake with the given features."""
+
 
 class Snake:
 	"""This class defines an individual snake and instantiates its genetics"""
@@ -59,8 +72,12 @@ class Snake:
 				self.numTimesBreedable = 1
 				self.ageBreedable = 2
 		self.traits = []
+
+		# Will keep track of the snakes related to the current one so there is no inbreeding
 		self.forebears = [self.name]
 		self.parents = []
+
+		# Needed so a snake won't breed when it's too young
 		self.age = age
 		if (self.sex == 'Male'):
 			self.price = 34.47
@@ -69,6 +86,7 @@ class Snake:
 		traitsfromparent1 = []
 		traitsfromparent2 = []
 		traitlist = []
+
 		# Checks whether you can breed the parents at all and if not kills the initialization
 		if (parent1 or parent2):
 			# Checks whether you would be inbreeding
@@ -122,15 +140,12 @@ class Snake:
 						i = i+1
 					self.traits.append(newtrait)
 		# Assigns price to snake
-		# In progress
 		for i in range(0,len(self.traits)):
 			for j in range(0,len(data)):
 				if self.traits[i][0] == data[j][0]:
 					self.price = self.price + data[j][1]
 				else:
 					pass
-
-
 
 def breed(snake1,snake2):
 	"""Given two snakes, determines whether they can breed and if they can possibly generates a clutch and if it generates a clutch generates a variable number of babies."""
@@ -142,22 +157,25 @@ def breed(snake1,snake2):
 		else:
 			snake2.numTimesBred = snake2.numTimesBred + 1
 			snake1.numTimesBred = snake1.numTimesBred + 1
+			# Working on getting a better distribution for clutch sizes
 			numbabies = np.floor(np.random.triangular(3,6,14, 1))
 			for i in range(1,numbabies):
 				global nameindex
+				# Actually uses the Snake class to instantiate the clutch size determined
 				transitive.append( Snake(names[nameindex], snake1,snake2))
 				nameindex = nameindex + 1
 
 def hypobreed(snake1, snake2):
-	# Edit this so it actually does expected values!!!!!
+	# Calculates the expected value of the offspring from a given pairing
 	exprev = 0
 	traitlist = []
+	# Checks whether the snakes would inbreed and if so we don't want to breed them
 	if (not set(snake1.forebears).isdisjoint(snake2.forebears)):
 		return 0
 	# Checks whether parents are same sex
 	elif (snake1.sex == snake2.sex):
 		return 0
-		# Make a probability matrix for offspring and a price matrix for that 
+	# Calculates the expected revenue
 	else:
 		for trait in snake1.traits:
 			traitlist = traitlist + trait
@@ -171,9 +189,28 @@ def hypobreed(snake1, snake2):
 			for trait in traitlist:
 				if trait == data[i][0]:
 					exprev = exprev + .25*data[i][1]
-	return exprev + 20
+		if snake2.age >= snake2.ageBreedable:
+			exprev = exprev + 1
+	return exprev + 38
+
+def hypobreedg(snake1,snake2):
+	# Checks whether the snakes would inbreed and if so we don't want to breed them
+	if (not set(snake1.forebears).isdisjoint(snake2.forebears)):
+		return 0
+	# Checks whether parents are same sex
+	elif (snake1.sex == snake2.sex):
+		return 0
+	else:
+		mtraits = []
+		ftraits = []
+		for i in range(0,len(snake1.traits)):
+			mtraits = mtraits + snake1.traits[i]
+		for i in range(0,len(snake2.traits)):
+			ftraits = ftraits + snake2.traits[i]
+		return len(set(mtraits + ftraits))
+
 def tick(transitive):
-	"""This function will simulate a year, so will age every snake 1 year and will call breed on the most valuable snakes and decide which snakes to keep and sell down to capacity."""
+	"""This function will simulate a year, so will age every snake 1 year and will call breed on the most valuable snakes and decide which snakes to keep and sell down to capacity. Really does most of the work."""
 	global snakes
 	for i in range(0, len(snakes)):
 		snakes[i].age = snakes[i].age + 1
@@ -184,31 +221,55 @@ def tick(transitive):
 
 			try:
 				breed(smales[i],sfemales[j])
-				# if smales[i].numTimesBred == smales[i].numTimesBreedable:
-				# 	del smales[i]
-				# else:
-				# 	pass
-				# del sfemales[j]
 
 			except:
 				pass
 	# if breedingrule == 2:
-	# 	if capacity>= len(transitive):
-	# 		snakes = transitive
-	# 	else:
-	# 		rev = 0
-	# 		males = [snake for snake in snakes if snake.sex == 'Male']
-	# 		females = [snake for snake in snakes if snake.sex == 'Female']
-	# 		keptmales = [males[index] for index in range(0,int(math.ceil(capacity/6)))]
-	# 		keptfemales = [females[index] for index in range(0,capacity - int(math.ceil(capacity/6)))]
-	# 		snakes = keptmales + keptfemales
-	# 		for i in range(int(math.ceil(capacity/6)), len(males)):
-	# 			rev = rev + males[i].price
-	# 		for j in range(capacity - int(math.ceil(capacity/6)), len(females)):
-	# 			rev = rev + males[j].price
-	# 		return rev
+	# 	# This breeding rule needs to breed in order to get the most gene snakes it can.
+	# 	gmales = [snake for snake in snakes if snake.sex == 'Male']
+	# 	gfemales = [snake for snake in snakes if snake.sex == 'Female']
+	# 	utmat = []
+	# 	vars = []
+	# 	for i in range(0, len(gmales)):
+	# 		# Makes a 2d array of expected revenue from pairings
+	# 		utmat.append([])
+	# 		for j in range(0, len(gfemales)):
+	# 			try:
+	# 				utmat[i].append(hypobreedg(gmales[i],gfemales[j]))
+	# 			except:
+	# 				pass
+	# 	utmat = dict(((i+1,j+1), utmat[i][j]) for i in range(len(utmat)) for j in range(len(utmat[0])))
+		# modelg = ConcreteModel()
+		# modelg.I = range(len(males))
+		# modelg.J = range(len(females))
+		# modelg.x = Var(modelg.I, model.J, domain = Binary)
+		# modelg.y = Var(modelg.I, domain = Binary)
+		# modelg.z = Var(modelg.J, domain = Binary)
+		# def obj_expression(modelg):
+		# 	return 6*sum(sum(modelg.x[i,j]*utmat[i+1,j+1] for j in modelg.J) for i in modelg.I) + sum(-80*modelg.y[i] for i in modelg.I)+sum(-80*modelg.z[j] for j in modelg.J)
+		# model.OBJ = Objective(rule = obj_expression, sense = maximize)
+		# def capcons(model):
+		# 	return sum(model.y[i] for i in model.I) + sum(model.z[j] for j in model.J) <= capacity
+		# model.row = ConstraintList()
+		# for i in model.I:
+		# 	model.row.add(sum(model.x[i,j] for j in model.J)<=5)
+		# model.col = ConstraintList()
+		# for j in model.J:
+		# 	model.row.add(sum(model.x[i,j] for i in model.I)<=1)
+		# model.capcon = Constraint(model.I, model.J, rule = capcons)
+		# model.indycon = ConstraintList()
+		# for i in model.I:
+		# 	model.indycon.add(sum(model.x[i,j] for j in model.J)<= 500*model.y[i])
+		# model.indzcon = ConstraintList()
+		# for j in model.J:
+		# 	model.indzcon.add(sum(model.x[i,j] for i in model.I)<= 500*model.z[j])
+		# opt = SolverFactory('cbc')
+		# opt.options['threads'] = 16
+		# results = opt.solve(model)
 
 	if breedingrule == 1:
+		# This breeding rule chooses arbitrary snakes to keep and sells off the rest.
+		
 		if capacity>= len(transitive):
 			snakes = list(transitive)
 			return -80*len(snakes)
@@ -223,9 +284,12 @@ def tick(transitive):
 	males = [snake for snake in transitive if snake.sex == 'Male']
 	females = [snake for snake in transitive if snake.sex == 'Female']
 	if breedingrule == 0:
+		# This breeding rule does the 'Optimal' way to choose which snakes to keep
+		
 		utmat = []
 		vars = []
 		for i in range(0, len(males)):
+			# Makes a 2d array of expected revenue from pairings
 			utmat.append([])
 			for j in range(0, len(females)):
 				try:
@@ -233,27 +297,19 @@ def tick(transitive):
 				except:
 					pass
 		utmat = dict(((i+1,j+1), utmat[i][j]) for i in range(len(utmat)) for j in range(len(utmat[0])))
+
+		# Makes and solves the integer program with pyomo
 		model = ConcreteModel()
-		
 		model.I = range(len(males))
 		model.J = range(len(females))
-		# model.revs = Param(model.I, model.J, initialize = utmat)
 		model.x = Var(model.I, model.J, domain = Binary)
 		model.y = Var(model.I, domain = Binary)
 		model.z = Var(model.J, domain = Binary)
 		def obj_expression(model):
 			return 6*sum(sum(model.x[i,j]*utmat[i+1,j+1] for j in model.J) for i in model.I) + sum(-80*model.y[i] for i in model.I)+sum(-80*model.z[j] for j in model.J)
 		model.OBJ = Objective(rule = obj_expression, sense = maximize)
-		# def rowx_constraint_rule(model,i):
-		# 	return sum(model.x[j] for j in model.J) <= 5
-		# def colx_constraint_rule(model,j):
-		# 	return sum(model.x[i] for i in model.I) <= 1
 		def capcons(model):
 			return sum(model.y[i] for i in model.I) + sum(model.z[j] for j in model.J) <= capacity
-		# def indycon(model, i):
-		# 	return sum(model.x[j] for j in model.J) < 500*(1-model.y)
-		# def indzcon(model, j):
-		# 	return sum(model.x[i] for i in model.I) < 500*(1-z)
 		model.row = ConstraintList()
 		for i in model.I:
 			model.row.add(sum(model.x[i,j] for j in model.J)<=5)
@@ -271,6 +327,7 @@ def tick(transitive):
 		opt.options['threads'] = 16
 		results = opt.solve(model)
 		
+		# Uses the results of the integer program to actually keep and sell the recomended snakes
 		keptindexm = [i for i in model.I if model.y[i].value == 1]
 		keptindexf = [j for j in model.J if model.z[j].value == 1]
 		keptm = [males[item] for item in keptindexm]
@@ -287,8 +344,9 @@ def tick(transitive):
 		snakes = keptm + keptf
 		return rev - 80*len(snakes)
 
-# Test snakes
+
 def initsnakes():
+	"""This function initializes the original set of snakes"""
 	global snakes
 	global transitive
 	snakes = []
@@ -310,7 +368,7 @@ def initsnakes():
 	transitive = list(snakes)
 
 
-
+# The following simulates the system and puts the results in profitfile
 for i in range(0,1):
 	nameindex = 0
 	breedingrule = 0
