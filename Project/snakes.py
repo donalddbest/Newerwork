@@ -5,6 +5,8 @@ import numpy as np
 import pandas
 import math
 from pyomo.environ import *
+from collections import Counter
+from collections import defaultdict
 
 # Unneccesarily gets a list of names to give to snakes
 df = pandas.read_csv('babies-first-names-1980-1989.csv')
@@ -151,7 +153,7 @@ def breed(snake1,snake2):
 	"""Given two snakes, determines whether they can breed and if they can possibly generates a clutch and if it generates a clutch generates a variable number of babies."""
 	global p
 	yesno = np.random.binomial(size = 1, n = 1, p = p)[0]
-	if (snake1.numTimesBreedable <= snake1.numTimesBred + 1 or snake2.numTimesBreedable <= snake2.numTimesBred + 1) and (snake1.age>=snake1.ageBreedable and snake2.age>=snake2.ageBreedable) and (snake1.sex != snake2.sex):
+	if (snake1.numTimesBreedable >= snake1.numTimesBred + 1 and snake2.numTimesBreedable >= snake2.numTimesBred + 1) and (snake1.age>=snake1.ageBreedable and snake2.age>=snake2.ageBreedable) and (snake1.sex != snake2.sex):
 		if (yesno == 0):
 			pass
 		else:
@@ -189,12 +191,13 @@ def hypobreed(snake1, snake2):
 			for trait in traitlist:
 				if trait == data[i][0]:
 					exprev = exprev + .25*data[i][1]
-		if snake2.age >= snake2.ageBreedable:
+		if(snake2.age >= 1):
 			exprev = exprev + 1
 	return exprev + 38
 
 def hypobreedg(snake1,snake2):
 	# Checks whether the snakes would inbreed and if so we don't want to breed them
+	weightvec = ['Pinstripe','Spider','YellowBelly','Pastel','Enchi','Mojave','Fire','Banana','GHI','Pied']
 	if (not set(snake1.forebears).isdisjoint(snake2.forebears)):
 		return 0
 	# Checks whether parents are same sex
@@ -207,65 +210,148 @@ def hypobreedg(snake1,snake2):
 			mtraits = mtraits + snake1.traits[i]
 		for i in range(0,len(snake2.traits)):
 			ftraits = ftraits + snake2.traits[i]
-		return len(set(mtraits + ftraits))
+		traitlist = mtraits + ftraits
+		mdict = Counter(mtraits)
+		fdict = Counter(ftraits)
+		for key in mdict:
+			if(mdict[key] == 2):
+				mdict[key] = .5
+			else:
+				mdict[key] = .33
+		for key in fdict:
+			if(fdict[key] == 2):
+				fdict[key] = .5
+			else:
+				fdict[key] = .33
+		newdict = mdict+fdict
+		for key in newdict:
+			for i in range(0,len(weightvec)):
+				if(key == weightvec[i]):
+					newdict[key] = newdict[key]*(len(weightvec)+i)/len(weightvec)
+		return sum(newdict.itervalues())
 
+				
 def tick(transitive):
 	"""This function will simulate a year, so will age every snake 1 year and will call breed on the most valuable snakes and decide which snakes to keep and sell down to capacity. Really does most of the work."""
 	global snakes
 	for i in range(0, len(snakes)):
 		snakes[i].age = snakes[i].age + 1
-	smales = sorted([snake for snake in snakes if snake.sex == 'Male'], key = lambda x: x.price, reverse = True)
-	sfemales = sorted([snake for snake in snakes if snake.sex == 'Female'], key = lambda x: x.price, reverse = True)
-	for i in range(0,len(smales)):
-		for j in range(0,len(sfemales)):
+		snakes[i].numTimesBred = 0
+	if(breedingrule < 2):
+		smales = sorted([snake for snake in snakes if snake.sex == 'Male'], key = lambda x: x.price, reverse = True)
+		sfemales = sorted([snake for snake in snakes if snake.sex == 'Female'], key = lambda x: x.price, reverse = True)
+		for i in range(0,len(smales)):
+			for j in range(0,len(sfemales)):
 
-			try:
-				breed(smales[i],sfemales[j])
+				try:
+					breed(smales[i],sfemales[j])
 
-			except:
-				pass
-	# if breedingrule == 2:
-	# 	# This breeding rule needs to breed in order to get the most gene snakes it can.
-	# 	gmales = [snake for snake in snakes if snake.sex == 'Male']
-	# 	gfemales = [snake for snake in snakes if snake.sex == 'Female']
-	# 	utmat = []
-	# 	vars = []
-	# 	for i in range(0, len(gmales)):
-	# 		# Makes a 2d array of expected revenue from pairings
-	# 		utmat.append([])
-	# 		for j in range(0, len(gfemales)):
-	# 			try:
-	# 				utmat[i].append(hypobreedg(gmales[i],gfemales[j]))
-	# 			except:
-	# 				pass
-	# 	utmat = dict(((i+1,j+1), utmat[i][j]) for i in range(len(utmat)) for j in range(len(utmat[0])))
-		# modelg = ConcreteModel()
-		# modelg.I = range(len(males))
-		# modelg.J = range(len(females))
-		# modelg.x = Var(modelg.I, model.J, domain = Binary)
+				except:
+					pass
+	if breedingrule == 2:
+		# This breeding rule needs to breed in order to get the most gene snakes it can.
+		gmales = [snake for snake in snakes if snake.sex == 'Male']
+		gfemales = [snake for snake in snakes if snake.sex == 'Female']
+		utmat = []
+		vars = []
+		for i in range(0, len(gmales)):
+			# Makes a 2d array of expected revenue from pairings
+			utmat.append([])
+			for j in range(0, len(gfemales)):
+				# try:
+				utmat[i].append(hypobreedg(gmales[i],gfemales[j]))
+				# except:
+				# 	pass
+		utmat = dict(((i+1,j+1), utmat[i][j]) for i in range(len(utmat)) for j in range(len(utmat[0])))
+		modelg = ConcreteModel()
+		modelg.I = range(len(gmales))
+		modelg.J = range(len(gfemales))
+		modelg.x = Var(modelg.I, modelg.J, domain = Binary)
 		# modelg.y = Var(modelg.I, domain = Binary)
 		# modelg.z = Var(modelg.J, domain = Binary)
-		# def obj_expression(modelg):
-		# 	return 6*sum(sum(modelg.x[i,j]*utmat[i+1,j+1] for j in modelg.J) for i in modelg.I) + sum(-80*modelg.y[i] for i in modelg.I)+sum(-80*modelg.z[j] for j in modelg.J)
-		# model.OBJ = Objective(rule = obj_expression, sense = maximize)
-		# def capcons(model):
-		# 	return sum(model.y[i] for i in model.I) + sum(model.z[j] for j in model.J) <= capacity
-		# model.row = ConstraintList()
-		# for i in model.I:
-		# 	model.row.add(sum(model.x[i,j] for j in model.J)<=5)
-		# model.col = ConstraintList()
-		# for j in model.J:
-		# 	model.row.add(sum(model.x[i,j] for i in model.I)<=1)
-		# model.capcon = Constraint(model.I, model.J, rule = capcons)
-		# model.indycon = ConstraintList()
-		# for i in model.I:
-		# 	model.indycon.add(sum(model.x[i,j] for j in model.J)<= 500*model.y[i])
-		# model.indzcon = ConstraintList()
-		# for j in model.J:
-		# 	model.indzcon.add(sum(model.x[i,j] for i in model.I)<= 500*model.z[j])
-		# opt = SolverFactory('cbc')
-		# opt.options['threads'] = 16
-		# results = opt.solve(model)
+		def obj_expressiong(modelg):
+			return sum(sum(modelg.x[i,j]*utmat[i+1,j+1] for j in modelg.J) for i in modelg.I)
+		modelg.OBJ = Objective(rule = obj_expressiong, sense = maximize)
+		# def capconsg(modelg):
+		# 	return sum(modelg.y[i] for i in modelg.I) + sum(modelg.z[j] for j in modelg.J) <= capacity
+		modelg.row = ConstraintList()
+		for i in modelg.I:
+			modelg.row.add(sum(modelg.x[i,j] for j in modelg.J)<=5)
+		modelg.col = ConstraintList()
+		for j in modelg.J:
+			modelg.row.add(sum(modelg.x[i,j] for i in modelg.I)<=1)
+		# modelg.capcon = Constraint(modelg.I, modelg.J, rule = capconsg)
+		# modelg.indycon = ConstraintList()
+		# for i in modelg.I:
+		# 	modelg.indycon.add(sum(modelg.x[i,j] for j in modelg.J)<= 500*modelg.y[i])
+		# modelg.indzcon = ConstraintList()
+		# for j in modelg.J:
+		# 	modelg.indzcon.add(sum(modelg.x[i,j] for i in modelg.I)<= 500*modelg.z[j])
+		opt = SolverFactory('cbc')
+		opt.options['threads'] = 16
+		resultsg = opt.solve(modelg)
+		for i in modelg.I:
+			for j in modelg.J:
+				if(modelg.x[i,j].value == 1):
+					breed(gmales[i],gfemales[j])
+
+		newmales = [snake for snake in transitive if snake.sex == 'Male']
+		newfemales = [snake for snake in transitive if snake.sex == 'Female']
+		utmat = []
+		vars = []
+		for i in range(0, len(newmales)):
+			# Makes a 2d array of expected revenue from pairings
+			utmat.append([])
+			for j in range(0, len(newfemales)):
+				try:
+					utmat[i].append(hypobreedg(newmales[i],newfemales[j]))
+				except:
+					pass
+		utmat = dict(((i+1,j+1), utmat[i][j]) for i in range(len(utmat)) for j in range(len(utmat[0])))
+		modeln = ConcreteModel()
+		modeln.I = range(len(newmales))
+		modeln.J = range(len(newfemales))
+		modeln.x = Var(modeln.I, modeln.J, domain = Binary)
+		modeln.y = Var(modeln.I, domain = Binary)
+		modeln.z = Var(modeln.J, domain = Binary)
+		def obj_expressionn(modeln):
+			return sum(sum(modeln.x[i,j]*utmat[i+1,j+1] for j in modeln.J) for i in modeln.I)
+		modeln.OBJ = Objective(rule = obj_expressionn, sense = maximize)
+		def capconsn(modeln):
+			return sum(modeln.y[i] for i in modeln.I) + sum(modeln.z[j] for j in modeln.J) <= capacity
+		modeln.row = ConstraintList()
+		for i in modeln.I:
+			modeln.row.add(sum(modeln.x[i,j] for j in modeln.J)<=5)
+		modeln.col = ConstraintList()
+		for j in modeln.J:
+			modeln.row.add(sum(modeln.x[i,j] for i in modeln.I)<=1)
+		modeln.capcon = Constraint(modeln.I, modeln.J, rule = capconsn)
+		modeln.indycon = ConstraintList()
+		for i in modeln.I:
+			modeln.indycon.add(sum(modeln.x[i,j] for j in modeln.J)<= 500*modeln.y[i])
+		modeln.indzcon = ConstraintList()
+		for j in modeln.J:
+			modeln.indzcon.add(sum(modeln.x[i,j] for i in modeln.I)<= 500*modeln.z[j])
+		opt = SolverFactory('cbc')
+		opt.options['threads'] = 16
+		resultsn = opt.solve(modeln)
+		keptindexm = [i for i in modeln.I if modeln.y[i].value == 1]
+		keptindexf = [j for j in modeln.J if modeln.z[j].value == 1]
+		keptm = [newmales[item] for item in keptindexm]
+		keptf = [newfemales[item] for item in keptindexf]
+		sellindexm = [i for i in modeln.I if modeln.y[i].value == 0]
+		sellindexf = [j for j in modeln.J if modeln.z[j].value == 0]
+		sellm = [newmales[item] for item in sellindexm]
+		rev = 0
+		for i in range(0,len(sellm)):
+			rev = rev + sellm[i].price
+		sellf = [newfemales[item] for item in sellindexf]
+		for i in range(0,len(sellf)):
+			rev = rev + sellf[i].price
+		snakes = keptm + keptf
+		return rev - 80*len(snakes)
+		
+		
 
 	if breedingrule == 1:
 		# This breeding rule chooses arbitrary snakes to keep and sells off the rest.
@@ -369,7 +455,29 @@ def initsnakes():
 
 
 # The following simulates the system and puts the results in profitfile
-for i in range(0,1):
+for j in range(0,30):
+	nameindex = 0
+	breedingrule = 2
+	initsnakes()
+	profit = []
+	for i in range(0,numyearssimulated):
+		profit.append(tick(transitive))
+		transitive = list(snakes)
+	for item in profit:
+		profitfile.write("%s, " % item)
+	profitfile.write('%s,' % breedingrule)
+	profitfile.write('%s\n' % p)
+	nameindex = 0
+	breedingrule = 1
+	initsnakes()
+	profit = []
+	for i in range(0,numyearssimulated):
+		profit.append(tick(transitive))
+		transitive = list(snakes)
+	for item in profit:
+		profitfile.write("%s, " % item)
+	profitfile.write('%s,' % breedingrule)
+	profitfile.write('%s\n' % p)
 	nameindex = 0
 	breedingrule = 0
 	initsnakes()
@@ -381,16 +489,7 @@ for i in range(0,1):
 		profitfile.write("%s, " % item)
 	profitfile.write('%s,' % breedingrule)
 	profitfile.write('%s\n' % p)
-	breedingrule = 1
-	initsnakes()
-	profit = []
-	for i in range(0,numyearssimulated):
-		profit.append(tick(transitive))
-		transitive = list(snakes)
-	for item in profit:
-		profitfile.write("%s, " % item)
-	profitfile.write('%s,' % breedingrule)
-	profitfile.write('%s\n' % p)
+	print j
 
 
 
