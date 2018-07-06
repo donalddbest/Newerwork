@@ -8,20 +8,25 @@ library('dplyr')
 
 data = read.csv('newprofitfile.csv', header = FALSE)
 length(data[,1])
-greedy <- data %>% filter(V6 == 0)
-arbitrary <- data %>% filter(V6 == 1)
-genes <- data %>% filter(V6 == 2)
-avegreedy <- c(mean(greedy[,1]),mean(greedy[,2]),mean(greedy[,3]),mean(greedy[,4]),mean(greedy[,5]))
-avearb <- c(mean(arbitrary[,1]),mean(arbitrary[,2]),mean(arbitrary[,3]),mean(arbitrary[,4]),mean(arbitrary[,5]))
-avegenes <- c(mean(genes[,1]),mean(genes[,2]),mean(genes[,3]),mean(genes[,4]),mean(genes[,5]))
-pdf('RevisedComparisonPlot.pdf')
-plot(c(1,2,3,4,5),avearb,type = 'l', col = 'purple', xlab = 'Year',ylab = 'Profit')
-lines(c(1,2,3,4,5),avegenes, col = 'blue')
-lines(c(1,2,3,4,5),avegreedy, col = 'green')
-legend(2,25100,c("Arbitrary",'Max Genes','Greedy'),col = c('purple','blue','green'),lty = 1)
+greedy <- data %>% filter(V8 == 0)
+arbitrary <- data %>% filter(V8 == 1)
+genes <- data %>% filter(V8 == 2)
+avegreedy <-c()
+avegenes<-c()
+for (j in 1:(length(data)-2)) {
+	avegreedy<-c(avegreedy,mean(greedy[,j]))
+	avegenes<-c(avegenes,mean(genes[,j]))
+}
+
+avegreedy
+avegenes
+pdf('RevisedComparisonPlot2.pdf')
+plot(1:(length(data)-2),avegenes,type = 'l', col = 'black', xlab = 'Year',ylab = 'Profit')
+lines(1:(length(data)-2),avegreedy, col = 'darkred')
+legend(2,25100,c('Max Genes','Greedy'),col = c('black','darkred'),lty = 1)
 dev.off()
 sum(avegreedy)
-sum(avearb)
+# sum(avearb)
 sum(avegenes)
 
 # optimsixty <- optimum %>% filter(V7 == .6)
