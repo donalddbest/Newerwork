@@ -8,14 +8,14 @@ library('dplyr')
 
 data = read.csv('newprofitfile.csv', header = FALSE)
 length(data[,1])
-greedy <- data %>% filter(V8 == 0)
-arbitrary <- data %>% filter(V8 == 1)
-genes <- data %>% filter(V8 == 2)
+greedy <- data %>% filter(V9 == 0) %>% mutate(TotalProfit = V1+V2+V3+V4+V5+V6+V7+V8)%>%arrange(TotalProfit)%>%mutate(weight = 1/length(TotalProfit))%>%mutate(probbefore = cumsum(weight))
+arbitrary <- data %>% filter(V9 == 1) %>% mutate(TotalProfit = V1+V2+V3+V4+V5+V6+V7+V8)%>%arrange(TotalProfit)%>%mutate(weight = 1/length(TotalProfit))%>%mutate(probbefore = cumsum(weight))
+genes <- data %>% filter(V9 == 2) %>% mutate(TotalProfit = V1+V2+V3+V4+V5+V6+V7+V8)%>%arrange(TotalProfit)%>%mutate(weight = 1/length(TotalProfit))%>%mutate(probbefore = cumsum(weight))
 avegreedy <-c()
 avegenes<-c()
 for (j in 1:(length(data)-2)) {
-	avegreedy<-c(avegreedy,mean(greedy[,j]))
-	avegenes<-c(avegenes,mean(genes[,j]))
+	avegreedy<-c(avegreedy,mean(greedy[,j], na.rm = TRUE))
+	avegenes<-c(avegenes,mean(genes[,j], na.rm = TRUE))
 }
 
 avegreedy
@@ -28,6 +28,15 @@ dev.off()
 sum(avegreedy)
 # sum(avearb)
 sum(avegenes)
+pdf('densities.pdf')
+hist(greedy$V1)
+hist(greedy$V2)
+hist(greedy$V3)
+plot(ecdf(greedy$TotalProfit),verticals=TRUE, do.points=FALSE, col = 'blue',xlab = 'Total Profit',ylab = 'Cumulative Density', main = 'Comparing EDFs of the Decision Rules')
+lines(ecdf(genes$TotalProfit),verticals=TRUE, do.points=FALSE, col = 'darkgreen')
+legend(80000,1,c('Maximize Expected Profits','Maximize Expected Genes'),col = c('blue','darkgreen'),lty = 1)
+dev.off()
+
 
 # optimsixty <- optimum %>% filter(V7 == .6)
 # optimseventy <- optimum %>% filter(V7 == .7)

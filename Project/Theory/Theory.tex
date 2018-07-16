@@ -86,7 +86,7 @@
     \frametitle{Maximize Weighted Number of Genes}
     This is what snake breeders actually do, and I implemented it as follows:
     \begin{align*}
-    \max_{\mathbf{X},\mathbf{y},\mathbf{z}}&\left\{ \sum_{i\in I}\mathbf G_i (\mathbf X_i)^T  \right\}\\
+    \max_{\mathbf{X},\mathbf{y},\mathbf{z}}&\left\{ \sum_{i\in I} g_i x_i^T  \right\}\\
       s.t. & \quad\mathbf X\mathbf 1_J \leq 5\mathbf 1_I \\
       &\quad \mathbf X^T \mathbf 1_I \leq \mathbf1_J\\
       &\quad \mathbf X \mathbf1_J\leq M\mathbf y\\

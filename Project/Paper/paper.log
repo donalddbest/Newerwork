@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.2.8)  2 JUL 2018 10:07
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.2.8)  16 JUL 2018 08:34
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -520,22 +520,29 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \@float@everytoks=\toks25
 \@floatcapt=\box31
 )
+(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty
+Package: natbib 2010/09/13 8.31b (PWD, AO)
+\bibhang=\skip46
+\bibsep=\skip47
+LaTeX Info: Redefining \cite on input line 694.
+\c@NAT@ctr=\count129
+)
 (/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty
 Package: multicol 2017/04/11 v1.8q multicolumn formatting (FMi)
-\c@tracingmulticols=\count129
+\c@tracingmulticols=\count130
 \mult@box=\box32
 \multicol@leftmargin=\dimen126
-\c@unbalance=\count130
-\c@collectmore=\count131
-\doublecol@number=\count132
-\multicoltolerance=\count133
-\multicolpretolerance=\count134
+\c@unbalance=\count131
+\c@collectmore=\count132
+\doublecol@number=\count133
+\multicoltolerance=\count134
+\multicolpretolerance=\count135
 \full@width=\dimen127
 \page@free=\dimen128
 \premulticols=\dimen129
 \postmulticols=\dimen130
-\multicolsep=\skip46
-\multicolbaselineskip=\skip47
+\multicolsep=\skip48
+\multicolbaselineskip=\skip49
 \partial@page=\box33
 \last@line=\box34
 \maxbalancingoverflow=\dimen131
@@ -560,42 +567,42 @@ Package: multicol 2017/04/11 v1.8q multicolumn formatting (FMi)
 \@tempa=\box53
 \@tempa=\box54
 \@tempa=\box55
-\c@columnbadness=\count135
-\c@finalcolumnbadness=\count136
+\c@columnbadness=\count136
+\c@finalcolumnbadness=\count137
 \last@try=\dimen132
 \multicolovershoot=\dimen133
 \multicolundershoot=\dimen134
 \mult@nat@firstbox=\box56
 \colbreak@box=\box57
-\mc@col@check@num=\count137
+\mc@col@check@num=\count138
 ) (./paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 15.
+LaTeX Font Info:    ... okay on input line 15.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count138
+\scratchcounter=\count139
 \scratchdimen=\dimen135
 \scratchbox=\box58
-\nofMPsegments=\count139
-\nofMParguments=\count140
+\nofMPsegments=\count140
+\nofMParguments=\count141
 \everyMPshowfont=\toks26
-\MPscratchCnt=\count141
+\MPscratchCnt=\count142
 \MPscratchDim=\dimen136
-\MPnumerator=\count142
-\makeMPintoPDFobject=\count143
+\MPnumerator=\count143
+\makeMPintoPDFobject=\count144
 \everyMPtoPDFconversion=\toks27
 ) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
@@ -683,12 +690,12 @@ e
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-\c@lstlisting=\count144
-LaTeX Font Info:    Try loading font information for U+msa on input line 21.
+\c@lstlisting=\count145
+LaTeX Font Info:    Try loading font information for U+msa on input line 22.
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 21.
+LaTeX Font Info:    Try loading font information for U+msb on input line 22.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -696,46 +703,52 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 <Normal.jpg, id=1, 488.82625pt x 481.8pt>
 File: Normal.jpg Graphic file (type jpg)
 <use Normal.jpg>
-Package pdftex.def Info: Normal.jpg  used on input line 28. on input line 28.
+Package pdftex.def Info: Normal.jpg  used on input line 30. on input line 30.
 Package pdftex.def Info: Requested size: 234.88007pt x 176.40323pt on input lin
-e 28.
+e 30.
 
-Overfull \hbox (5.00256pt too wide) in paragraph at lines 28--29
+Overfull \hbox (5.00256pt too wide) in paragraph at lines 30--31
  [][] 
  []
 
 <Pastel.jpg, id=2, 1027.84pt x 770.88pt>
 File: Pastel.jpg Graphic file (type jpg)
 <use Pastel.jpg>
-Package pdftex.def Info: Pastel.jpg  used on input line 32. on input line 32.
+Package pdftex.def Info: Pastel.jpg  used on input line 34. on input line 34.
 Package pdftex.def Info: Requested size: 234.8775pt x 176.15768pt on input line
- 32.
+ 34.
 
-Overfull \hbox (5.0pt too wide) in paragraph at lines 32--33
+Overfull \hbox (5.0pt too wide) in paragraph at lines 34--35
  [][] 
  []
 
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./Normal.jpg> <./Pastel.jp
-g>] [2] (./paper.aux) ) 
+g>] [2] [3] (./paper.bbl) [4] (./paper.aux) ) 
 Here is how much of TeX's memory you used:
- 4837 strings out of 492990
- 65029 string characters out of 6135006
- 136156 words of memory out of 5000000
- 8310 multiletter control sequences out of 15000+600000
- 9535 words of font info for 36 fonts, out of 8000000 for 9000
+ 5192 strings out of 492990
+ 69235 string characters out of 6135006
+ 144048 words of memory out of 5000000
+ 8656 multiletter control sequences out of 15000+600000
+ 11234 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,6n,32p,578b,295s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.p
-fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on paper.pdf (2 pages, 567694 bytes).
+ 41i,10n,32p,1460b,295s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/share/texlive/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/pub
+lic/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmmi5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr1
+0.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><
+/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/sh
+are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
+Output written on paper.pdf (4 pages, 630148 bytes).
 PDF statistics:
- 33 PDF objects out of 1000 (max. 8388607)
- 21 compressed objects within 1 object stream
+ 63 PDF objects out of 1000 (max. 8388607)
+ 43 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  11 words of extra memory for PDF output out of 10000 (max. 10000000)
 

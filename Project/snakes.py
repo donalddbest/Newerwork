@@ -28,7 +28,7 @@ profitfile = open('newprofitfile.csv', "a")
 breedingrule = 0
 
 # Tells how many years will be simulated
-numyearssimulated = 7
+numyearssimulated = 8
 
 # The traits the program will work with
 recessives = ['Pied']
@@ -179,18 +179,38 @@ def hypobreed(snake1, snake2):
 		return 0
 	# Calculates the expected revenue
 	else:
-		for trait in snake1.traits:
-			traitlist = traitlist + trait
+		mtraits = []
+		ftraits = []
+		for i in range(0,len(snake1.traits)):
+			mtraits = mtraits + snake1.traits[i]
+		for i in range(0,len(snake2.traits)):
+			ftraits = ftraits + snake2.traits[i]
+		traitlist = mtraits + ftraits
+		mdict = Counter(mtraits)
+		fdict = Counter(ftraits)
+		for key in mdict:
+			if(mdict[key] == 2):
+				mdict[key] = .5
+			else:
+				mdict[key] = .375
+		for key in fdict:
+			if(fdict[key] == 2):
+				fdict[key] = .5
+			else:
+				fdict[key] = .375
+		newdict = mdict+fdict
+		# for trait in snake1.traits:
+		# 	traitlist = traitlist + trait
 		for i in range(0, len(data)):
-			for trait in traitlist:
-				if trait == data[i][0]:
-					exprev = exprev + .25*data[i][1]
-		for trait in snake2.traits:
-			traitlist = traitlist + trait
-		for i in range(0, len(data)):
-			for trait in traitlist:
-				if trait == data[i][0]:
-					exprev = exprev + .25*data[i][1]
+			for key in newdict:
+				if key == data[i][0]:
+					exprev = exprev + newdict[key]*data[i][1]
+		# for trait in snake2.traits:
+		# 	traitlist = traitlist + trait
+		# for i in range(0, len(data)):
+		# 	for trait in traitlist:
+		# 		if trait == data[i][0]:
+		# 			exprev = exprev + .25*data[i][1]
 		if(snake2.age >= 1):
 			exprev = exprev + 1
 	return exprev + 38
@@ -222,13 +242,16 @@ def hypobreedg(snake1,snake2):
 			if(fdict[key] == 2):
 				fdict[key] = .5
 			else:
-				fdict[key] = .33
+				fdict[key] = .375
 		newdict = mdict+fdict
-		for key in newdict:
-			for i in range(0,len(weightvec)):
-				if(key == weightvec[i]):
-					newdict[key] = newdict[key]*(len(weightvec)+i)/len(weightvec)
-		return sum(newdict.itervalues())
+		# for key in newdict:
+		# 	for i in range(0,len(weightvec)):
+		# 		if(key == weightvec[i]):
+		# 			newdict[key] = newdict[key]*(len(weightvec)+i)/len(weightvec)
+		if snake2.age >= 1:
+			return sum(newdict.itervalues()) + .1
+		else:
+			return sum(newdict.itervalues())
 
 				
 def tick(transitive):
@@ -356,10 +379,10 @@ def tick(transitive):
 		modeln.capcon = Constraint(modeln.I, modeln.J, rule = capconsn)
 		modeln.indycon = ConstraintList()
 		for i in modeln.I:
-			modeln.indycon.add(sum(modeln.x[i,j] for j in modeln.J)<= 500*modeln.y[i])
+			modeln.indycon.add(sum(modeln.x[i,j] for j in modeln.J)<= 6*modeln.y[i])
 		modeln.indzcon = ConstraintList()
 		for j in modeln.J:
-			modeln.indzcon.add(sum(modeln.x[i,j] for i in modeln.I)<= 500*modeln.z[j])
+			modeln.indzcon.add(sum(modeln.x[i,j] for i in modeln.I)<= 2*modeln.z[j])
 		opt = SolverFactory('cbc')
 		opt.options['threads'] = 16
 		resultsn = opt.solve(modeln)
@@ -483,7 +506,7 @@ def initsnakes():
 
 
 # The following simulates the system and puts the results in profitfile
-for j in range(0,30):
+for j in range(0,100):
 	nameindex = 0
 	breedingrule = 2
 	initsnakes()
