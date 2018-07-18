@@ -35,7 +35,7 @@
 	\end{figure}
 	\end{multicols}
 	Note the marked difference that one trait can make in the appearance of the snake. As with dogs, certain traits are valued much higher than others. A Normal costs about \$20, whereas a Pastel costs about \$45, and Ball Pythons with another trait, called Banana, costs about \$200. As one might imagine the `cooler' looking the snake the more it will cost, so breeders seek to make more money by breeding so offspring will express more genes and therefore look `cooler'.\\
-	\indent I will not go over the details of snake reproduction here, but there are certain facts that will be used in this paper and the related programs, without which the reader will undoubtedly be lost. Firstly, upon a successful (and sometimes unsuccessful) pairing of a male and female snake a set of eggs, called a clutch, is produced. Secondly, female snakes can breed up to once per breeding season, whereas a male can breed up to five times per breeding season.
+	\indent I will not go over the details of snake reproduction here, but there are certain facts that will be used in this paper and the related programs, without which the reader will undoubtedly be lost. Firstly, upon a successful (and sometimes unsuccessful) pairing of a male and female snake a set of eggs, called a clutch, is produced. Secondly, female snakes can breed up to once per breeding season, whereas a male can breed up to five times per breeding season. Lastly, a male reaches sexual maturity in about a year, whereas a female reaches sexual maturity in about two years.
 
 	\section*{Theory}
 	\indent\indent Initially, one can think of this problem as a portfolio management problem in which the Ball Python breeders are portfolio managers and the snakes are capital goods, and one can imagine that the breeders would like to maximize the present discounted value of profits from their stock of snakes. The preceding method was pioneered in  \cite{jarvis}. Comparative statics for this interpretation have been derived in the preceding paper and \cite{Paarsch}.\\\indent The previous papers assume the animals (cattle) are all homogeneous except in age and there was no improvement in breed over time, which are simply not valid assumptions in the case of snake breeding. The value of each snake in your inventory depends on the genes it expresses, which depends on what its parents were, and there is an overall improvement in your stock over time because of the selective breeding exercise, which can't be handled by the aforementioned model.\\
@@ -52,7 +52,68 @@
 	\end{align*}
 	\indent So what does one do since true optimality is intractable? The approach this paper uses is find a reasonable rule that does well, where ``well'' is defined as doing better than the rule snake breeders actually follow, and simulate in order to find the changes instilled by a change in the parameters of the system.
 	\section*{Data}
-	\indent I retrieved the data used for my program from the breeders at a show called Repticon in Tampa.
+	\indent I retrieved the data used for my program from the breeders at a show called Repticon in Tampa. I gathered the genetics of the snakes, the sex of the snakes, and the price of the snakes. I ran a linear regression of the traits and sex of the snake against the log of the price of the snake for snakes that had only genes represented in at least 10 snakes. This was accomplished by eliminating genes that had less than 10 snakes and eliminating the snakes with those genes in the R script \textit{modeler.R}. The resulting genes (first column) and their prices (second column) are found in \textit{newprices.csv}.
+	\section*{Program}
+	\indent Since most of the work in this paper has gone into developing the simulation program, \textit{snakes.py}, it seems reasonable to talk a little about what is going on in the program. The first major part of the program is that a snake is an instance of a class aptly called Snake which contains the relevant information about a snake: name, age, sex, price, traits, forebears, age it can breed, and number of times it has bred this period. The second major part of the program is the function tick which simulates what a breeder with a given decision rule will do in a year. The function tick itself calls three separate functions: breed, hypobreed, and hypobreedg.\\\indent The function breed does the following: checks whether the snakes can breed at all with regards to sex, age, and inbreeding, if they can it has a 60\% chance to generate offspring, and if it does, it generates a clutch size from the discrete triangular distribution where the minimum observable value is 3, maximum observable value is 14, and the value with the highest probability is 6, and generates that number of new snakes. The functions hypobreed and hypobreedg are used to calculate the expected revenue and expected number of genes of offspring respectively, for use with the decision rules.\\
+	\indent The two decision rules that I implement are: maximize expected profit in the next time period, and maximize the expected number of genes in offspring. The first does the following:
+	\begin{align*}
+		\max_{\mathbf{X},\mathbf{y},\mathbf{z}}&\left\{ \sum_{i\in I}\mathbf r_i \mathbf x_i^T - 80\mathbf y^T\mathbf 1_I - 80\mathbf z^T\mathbf 1_J \right\}\\
+      s.t. & \quad\mathbf X\mathbf 1_J \leq 5\mathbf 1_I \\
+      &\quad \mathbf X^T \mathbf 1_I \leq \mathbf1_J\\
+      &\quad \mathbf X \mathbf1_J\leq M\mathbf y\\
+      & \quad\mathbf X^T\mathbf 1_I \leq M\mathbf z\\
+      &\quad \mathbf y^T\mathbf 1_I + \mathbf z^T\mathbf 1_J \leq C\\
+      & \quad X_{ij}, y_i, z_j \in \{0,1\}
+	\end{align*}
+	where:
+	\begin{itemize}
+	\item $I$- the set of male snakes in stock.
+	\item $J$- the set of female snakes in stock.
+	\item $\mathbf R$- (not shown) a matrix, the $ij$th element of which is the expected revenue of breeding male $i\in I$ and female $j\in J$.
+	\item $\mathbf r_i$- the $i$th row of $\mathbf R$.
+	\item $\mathbf X$- a decision matrix, the $ij$th element of which has a 1 if one should breed male $i$ with female $j$.
+	\item $\mathbf x_i$- the $i$th row of $\mathbf X$.
+	\item $\mathbf y$- a decision vector, the $i$th entry of which should contain 1 if one should keep male $i$.
+	\item $\mathbf z$- a decision vector, the $j$th entry of which should contain 1 if one should keep female $j$.
+	\item $M$- a large integer.
+	\item $C$- the capacity constraint.
+	\end{itemize}
+	\indent Taken together the above maximizes expected profit in the next period subject to a capacity constraint and that males can breed up to 5 times per period and females up to once per period. One might also wonder why the number 80 appears in the objective, and the answer is that the average yearly cost to keep a ball python is \$80.\\
+	\\\indent The second decision rule does the following:
+	\begin{align*}
+		\max_{\mathbf{X},\mathbf{y},\mathbf{z}}&\left\{ \sum_{i\in I}\mathbf g_i \mathbf x_i^T\right\}\\
+      s.t. & \quad\mathbf X\mathbf 1_J \leq 5\mathbf 1_I \\
+      &\quad \mathbf X^T \mathbf 1_I \leq \mathbf1_J\\
+      &\quad \mathbf X \mathbf1_J\leq M\mathbf y\\
+      & \quad\mathbf X^T\mathbf 1_I \leq M\mathbf z\\
+      &\quad \mathbf y^T\mathbf 1_I + \mathbf z^T\mathbf 1_J \leq C\\
+      & \quad X_{ij}, y_i, z_j \in \{0,1\}
+	\end{align*}
+	where the variables are the same as the last decision rule except:
+	\begin{itemize}
+	\item $\mathbf G$- (not shown) a matrix, the $ij$th element of which is the expected number of genes in the offspring of male $i$ and female $j$.
+	\item $\mathbf g_i$- the $i$th row of $\mathbf G$.
+	\end{itemize}
+	\section*{Results}
+	\indent Before I can make conclusions about the differences brought about by changing the parameters of the system, I need to show that my decision rule performs well. Having setup both my decision rule and a snake breeder's decision rule I ran both through 8 time periods 124 times apiece and calculated the Total Profit of each simulation with a capacity constraint of 15 snakes. The empirical cumulative distribution functions are shown on the next page.
+	\begin{figure}[H]
+	\centering
+	\includegraphics[width=.75\textwidth]{ECDF.png}
+	\end{figure}
+	The first thing to note about the above is that according to a two-sided Two-sample Kolmogorov-Smirnov test we can be 95\% (p-value .001) confident that these two ecdfs are drawn from different distributions. The second thing to note is that all risk-neutral and most risk-averse snake breeders should prefer to use my decision rule (the thinner line).\\
+	\indent If one changes the snake breeder's decision rule slightly to have a naive weighting system where the most weight is placed on the best gene, second most is placed on the second best gene, and so on and so forth, the graph of the ecdfs are shown on the next page.
+	\begin{figure}[H]
+	\centering
+	\includegraphics[width=.75\textwidth]{newECDF.png}
+	\end{figure}
+	
+	We can be 90\% (p-value .078) confident that the two are drawn from different distributions using the same test as before. Once again all risk-neutral and most (in fact all if these distributions are close enough to the truth, since my decision rule looks like it Second Order Stochastically Dominates the snake breeder's decision rule) risk-averse snake breeders  would prefer my decision rule. One might wonder what would happen if one used a weighting system that wasn't naive, and the answer is that it would turn into maximizing expected revenue, and should do slightly worse than my decision rule.\\
+	\indent Having shown that my decision rule does well, we can move on to the goal of this paper: finding how much the system changes when one alters the parameters of the system. Before we do that, let's first establish what parameters will be changed and what one might expect the result of that parameter might be.
+	\subsection*{Parameters and Expectations}
+		\subsubsection*{Probability of Clutch}
+		\indent The current probability that a pairing will result in a clutch is .6, and since increasing that probability would increase the average number of offspring in each period it's fairly obvious to expect that the profit in each period would increase on average. Thinking a little more about it yields the following observation: there will be an effect that accumulates each period due to the fact that, since there are more snakes on average, there is a higher probability of getting better snakes each period, and since one should be choosing to keep better snakes this will have an additional positive effect on profits.
+		\subsubsection*{Distribution of Clutch Size}
+
 
 \bibliography{References}
 \nocite{*}

@@ -22,7 +22,7 @@ for i in range(0,len(data)):
 	# data[i][2] = float(data[i][2])
 
 # Connects to the file that will hold the data on profits
-profitfile = open('newprofitfile.csv', "a")
+profitfile = open('profitfile.csv', "a")
 
 # This tells the program which rule it should use to keep snakes
 breedingrule = 0
@@ -244,10 +244,11 @@ def hypobreedg(snake1,snake2):
 			else:
 				fdict[key] = .375
 		newdict = mdict+fdict
-		# for key in newdict:
-		# 	for i in range(0,len(weightvec)):
-		# 		if(key == weightvec[i]):
-		# 			newdict[key] = newdict[key]*(len(weightvec)+i)/len(weightvec)
+		# The following for loop is the naive weighting system, comment it out to turn it off.
+		for key in newdict:
+			for i in range(0,len(weightvec)):
+				if(key == weightvec[i]):
+					newdict[key] = newdict[key]*(len(weightvec)+i)/len(weightvec)
 		if snake2.age >= 1:
 			return sum(newdict.itervalues()) + .1
 		else:
