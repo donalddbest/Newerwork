@@ -113,6 +113,52 @@
 		\subsubsection*{Probability of Clutch}
 		\indent The current probability that a pairing will result in a clutch is .6, and since increasing that probability would increase the average number of offspring in each period it's fairly obvious to expect that the profit in each period would increase on average. Thinking a little more about it yields the following observation: there will be an effect that accumulates each period due to the fact that, since there are more snakes on average, there is a higher probability of getting better snakes each period, and since one should be choosing to keep better snakes this will have an additional positive effect on profits.
 		\subsubsection*{Distribution of Clutch Size}
+		There are three natural ways to modify the distribution I specified. One can change the lower bound, the highest probability, or the upper bound. Modifying one of these numbers upwards should work in a similar way to increasing the probability of a clutch, in that it will, on average, generate more snakes. This may once again have the same benefit of getting better snakes more often which will have a cumulative additional effect. On a different note, moving the lower bound up, or the upper bound down should decrease the variance of the profits.
+		\subsubsection*{Male Virility}
+		Since the base assumption is that a male can breed to five females, one could think of increasing that ratio as something that could be plausibly attained, and therefore something to be investigated. Since a male could still breed to five females if that would do better with regards to profit, I posit that profits could only stay the same or increase, on average, and I would place my bet on increase. Another affect that one can imagine, is that the ratio of males to females would tend to be lower, since you need fewer males to inseminate as many females, and the number of clutches can be at most the same as the number of females.
+		\subsubsection*{Cost}
+		As with any producer, increasing their costs should decrease their profits. This shouldn't have any strange cumulative effects until the increased cost makes the program start discarding snakes it would have otherwise kept, which shouldn't happen for small increases since most of the snakes in the initial stock are worth more than \$80.
+		\subsubsection*{Capacity}
+		This particular parameter is simultaneously one of the more interesting ones and the most vexing to think about. One can imagine that loosening this constraint can only have a zero or positive effect on profits, and at first blush one might guess that it would be positive. Think if you will about the following scenario: moving from a capacity of 18 to a capacity of 19. At 18 snakes it's likely that one would keep 3 males and 15 females. Suppose you have the same choices, but a capacity of 19. It's unclear whether one should use that additional space. My working hypothesis is that moving upwards will normally increase profits, but moving upwards from multiples of 6 may have no effect.
+		\subsection*{Results}
+		\subsubsection*{Probability of Clutch}
+		\begin{figure}[H]
+		\centering
+		\includegraphics[width=.5\textwidth]{probECDF.png}
+		\end{figure}
+		As one can see from the above, it is clear that increasing the probability increases the profits, as expected. The part that requires some thought is whether or not there was the hypothesized benefit from the cumulative improvement of the genetic base. imagine with me what would happen if there wasn't a cumulative improvement. If the snakes were the same average value as they were previously, and there were just more of them than the revenue should be, on average, $16.\bar{6}\%$ higher since .7 is that percent more than .6. The costs should be roughly the same on average, which, coupled with the reasonable assumption that they should be keeping exactly 15 snakes in almost every scenario, leads me to posit that the total cost for these 8 years is $80*15*8 = 9600$. The average total profit from a probability of .6 was \$154768.6, so adding the \$9600 of cost yields an average total revenue of \$164368.6, which should increase to \$191763.4 if my hypothesis is wrong. It instead increased to \$195813. That value rejects the null hypothesis that there is no cumulative effect at an $\alpha$ of .05.
+		\subsubsection*{Distribution of Clutch Size}
+		\begin{figure}[H]
+		\centering
+		\includegraphics[width=.5\textwidth]{lbECDF.png}
+		\end{figure}
+		\begin{figure}[H]
+		\centering
+		\includegraphics[width=.5\textwidth]{maxECDF.png}
+		\end{figure}
+		\begin{figure}[H]
+		\centering
+		\includegraphics[width=.5\textwidth]{ubECDF.png}
+		\end{figure}
+		\subsubsection*{Male Virility}
+		\begin{figure}[H]
+		\centering
+		\includegraphics[width=.5\textwidth]{virECDF.png}
+		\end{figure}
+		\subsubsection*{Cost}
+		
+		\subsubsection*{Capacity}
+		\begin{figure}[H]
+		\centering
+		\includegraphics[width=.5\textwidth]{capECDF.png}
+		\end{figure}
+		\begin{figure}[H]
+		\centering
+		\includegraphics[width=.5\textwidth]{othcapECDF.png}
+		\end{figure}
+		
+		
+		
 
 
 \bibliography{References}

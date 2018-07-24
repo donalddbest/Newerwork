@@ -58,7 +58,7 @@
 \begin{frame}
   \frametitle{Problems}
   \begin{itemize}
-    \item Not PAM like I had previously thought.
+    \item Not PAM.
     \item $g$ may be a profit function, but there doesn't seem to be a closed form for $\Pi$
     
     \item Brute force method is $\BigO(IJ^4)$ in each period.
@@ -71,9 +71,8 @@
   \end{frame}
   \begin{frame}
   \frametitle{Maximize Average Profits}
-  Roughly the same program I was doing before, but now I don't assume breeding is PAM, and that I fixed a mistake.
   \begin{align*}
-      \max_{\mathbf{X},\mathbf{y},\mathbf{z}}&\left\{ \sum_{i\in I}\mathbf R_i (\mathbf X_i)^T - 80\mathbf y^T\mathbf 1_I - 80\mathbf z^T\mathbf 1_J \right\}\\
+      \max_{\mathbf{X},\mathbf{y},\mathbf{z}}&\left\{ \sum_{i\in I}\mathbf r_i \mathbf x_i^T - 80\mathbf y^T\mathbf 1_I - 80\mathbf z^T\mathbf 1_J \right\}\\
       s.t. & \quad\mathbf X\mathbf 1_J \leq 5\mathbf 1_I \\
       &\quad \mathbf X^T \mathbf 1_I \leq \mathbf1_J\\
       &\quad \mathbf X \mathbf1_J\leq M\mathbf y\\

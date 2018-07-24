@@ -22,7 +22,7 @@ for i in range(0,len(data)):
 	# data[i][2] = float(data[i][2])
 
 # Connects to the file that will hold the data on profits
-profitfile = open('costprofitfile.csv', "a")
+profitfile = open('probprofitfile.csv', "a")
 
 # This tells the program which rule it should use to keep snakes
 breedingrule = 0
@@ -59,7 +59,7 @@ class Snake:
 			sexnum = np.random.binomial(size = 1, n = 1, p = .5)[0]
 			if (sexnum == 0):
 				self.sex = 'Male'
-				self.numTimesBreedable = numbreed
+				self.numTimesBreedable = 5
 				self.ageBreedable = 1
 			else:
 				self.sex = 'Female'
@@ -68,7 +68,7 @@ class Snake:
 		else:
 			self.sex = sex
 			if (sex == 'Male'):
-				self.numTimesBreedable = numbreed
+				self.numTimesBreedable = 5
 				self.ageBreedable = 1
 			else:
 				self.numTimesBreedable = 1
@@ -160,7 +160,7 @@ def breed(snake1,snake2):
 			snake2.numTimesBred = snake2.numTimesBred + 1
 			snake1.numTimesBred = snake1.numTimesBred + 1
 			# Working on getting a better distribution for clutch sizes
-			numbabies = np.floor(np.random.triangular(lowerbound,maxprob,upperbound, 1))
+			numbabies = np.floor(np.random.triangular(3,6,14, 1))
 			for i in range(1,numbabies):
 				global nameindex
 				# Actually uses the Snake class to instantiate the clutch size determined
@@ -289,7 +289,7 @@ def tick(transitive):
 		# 	return sum(model.y[i] for i in model.I) + sum(model.z[j] for j in model.J) <= capacity
 		modelr.row = ConstraintList()
 		for i in modelr.I:
-			modelr.row.add(sum(modelr.x[i,j] for j in modelr.J)<=numbreed)
+			modelr.row.add(sum(modelr.x[i,j] for j in modelr.J)<=5)
 		modelr.col = ConstraintList()
 		for j in modelr.J:
 			modelr.row.add(sum(modelr.x[i,j] for i in modelr.I)<=1)
@@ -301,7 +301,7 @@ def tick(transitive):
 		# for j in model.J:
 		# 	model.indzcon.add(sum(model.x[i,j] for i in model.I)<= 500*model.z[j])
 		opt = SolverFactory('cbc')
-		opt.options['threads'] = 60
+		opt.options['threads'] = 16
 		results = opt.solve(modelr)
 		for i in modelr.I:
 			for j in modelr.J:
@@ -334,13 +334,13 @@ def tick(transitive):
 		
 		modelg.row = ConstraintList()
 		for i in modelg.I:
-			modelg.row.add(sum(modelg.x[i,j] for j in modelg.J)<=numbreed)
+			modelg.row.add(sum(modelg.x[i,j] for j in modelg.J)<=5)
 		modelg.col = ConstraintList()
 		for j in modelg.J:
 			modelg.row.add(sum(modelg.x[i,j] for i in modelg.I)<=1)
 		
 		opt = SolverFactory('cbc')
-		opt.options['threads'] = 60
+		opt.options['threads'] = 16
 		resultsg = opt.solve(modelg)
 		for i in modelg.I:
 			for j in modelg.J:
@@ -373,7 +373,7 @@ def tick(transitive):
 			return sum(modeln.y[i] for i in modeln.I) + sum(modeln.z[j] for j in modeln.J) <= capacity
 		modeln.row = ConstraintList()
 		for i in modeln.I:
-			modeln.row.add(sum(modeln.x[i,j] for j in modeln.J)<=numbreed)
+			modeln.row.add(sum(modeln.x[i,j] for j in modeln.J)<=5)
 		modeln.col = ConstraintList()
 		for j in modeln.J:
 			modeln.row.add(sum(modeln.x[i,j] for i in modeln.I)<=1)
@@ -385,7 +385,7 @@ def tick(transitive):
 		for j in modeln.J:
 			modeln.indzcon.add(sum(modeln.x[i,j] for i in modeln.I)<= 2*modeln.z[j])
 		opt = SolverFactory('cbc')
-		opt.options['threads'] = 60
+		opt.options['threads'] = 16
 		resultsn = opt.solve(modeln)
 		keptindexm = [i for i in modeln.I if modeln.y[i].value == 1]
 		keptindexf = [j for j in modeln.J if modeln.z[j].value == 1]
@@ -401,7 +401,7 @@ def tick(transitive):
 		for i in range(0,len(sellf)):
 			rev = rev + sellf[i].price
 		snakes = keptm + keptf
-		return rev - cost*len(snakes)
+		return rev - 80*len(snakes)
 		
 		
 
@@ -444,13 +444,13 @@ def tick(transitive):
 		model.y = Var(model.I, domain = Binary)
 		model.z = Var(model.J, domain = Binary)
 		def obj_expression(model):
-			return 6*sum(sum(model.x[i,j]*utmat[i+1,j+1] for j in model.J) for i in model.I) + sum(-cost*model.y[i] for i in model.I)+sum(-cost*model.z[j] for j in model.J)
+			return 6*sum(sum(model.x[i,j]*utmat[i+1,j+1] for j in model.J) for i in model.I) + sum(-80*model.y[i] for i in model.I)+sum(-80*model.z[j] for j in model.J)
 		model.OBJ = Objective(rule = obj_expression, sense = maximize)
 		def capcons(model):
 			return sum(model.y[i] for i in model.I) + sum(model.z[j] for j in model.J) <= capacity
 		model.row = ConstraintList()
 		for i in model.I:
-			model.row.add(sum(model.x[i,j] for j in model.J)<=numbreed)
+			model.row.add(sum(model.x[i,j] for j in model.J)<=5)
 		model.col = ConstraintList()
 		for j in model.J:
 			model.row.add(sum(model.x[i,j] for i in model.I)<=1)
@@ -462,7 +462,7 @@ def tick(transitive):
 		for j in model.J:
 			model.indzcon.add(sum(model.x[i,j] for i in model.I)<= 500*model.z[j])
 		opt = SolverFactory('cbc')
-		opt.options['threads'] = 60
+		opt.options['threads'] = 16
 		results = opt.solve(model)
 		
 		# Uses the results of the integer program to actually keep and sell the recomended snakes
@@ -480,7 +480,7 @@ def tick(transitive):
 		for i in range(0,len(sellf)):
 			rev = rev + sellf[i].price
 		snakes = keptm + keptf
-		return rev - cost*len(snakes)
+		return rev - 80*len(snakes)
 
 
 def initsnakes():
@@ -507,7 +507,7 @@ def initsnakes():
 
 
 # The following simulates the system and puts the results in profitfile
-for j in range(0,130):
+for j in range(0,100):
 	# The commented code below implements the snake breeder's rule
 	# nameindex = 0
 	# breedingrule = 2
@@ -534,12 +534,6 @@ for j in range(0,130):
 	# profitfile.write('%s\n' % p)
 	# nameindex = 0
 	breedingrule = 0
-	lowerbound = 3
-	upperbound = 14
-	maxprob = 6
-	capacity = 15
-	numbreed = 5
-	cost = 80
 	initsnakes()
 	profit = []
 	for i in range(0,numyearssimulated):
@@ -548,16 +542,11 @@ for j in range(0,130):
 	for item in profit:
 		profitfile.write("%s, " % item)
 	profitfile.write('%s,' % breedingrule)
-	profitfile.write('%s\n' % cost)
-	print numbreed
+	profitfile.write('%s\n' % p)
 	nameindex = 0
 	breedingrule = 0
-	lowerbound = 3
-	upperbound = 14
-	maxprob = 6
-	capacity = 15
-	numbreed = 5
-	cost = 90
+	print 0
+	p = .7
 	initsnakes()
 	profit = []
 	for i in range(0,numyearssimulated):
@@ -566,7 +555,7 @@ for j in range(0,130):
 	for item in profit:
 		profitfile.write("%s, " % item)
 	profitfile.write('%s,' % breedingrule)
-	profitfile.write('%s\n' % cost)
+	profitfile.write('%s\n' % p)
 	print j
 
 
